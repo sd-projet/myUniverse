@@ -1,0 +1,10 @@
+{% extends 'dashboard/index.html.twig' %}
+
+{% block title %}New Constellations{% endblock %}
+
+{% block body %}
+    <a href="{{ path('app_user_constellations') }}">Retour</a>
+
+    {{ include('constellations/_form.html.twig') }}
+
+{% endblock %}

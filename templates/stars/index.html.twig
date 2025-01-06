@@ -1,0 +1,39 @@
+{% extends 'dashboard/index.html.twig' %}
+
+{% block title %}Mes Stars{% endblock %}
+
+{% block body %}
+    <h1>Mes Stars</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Date de l'évènement</th>
+                <th>Date de création</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for star in stars %}
+            <tr>
+                <td>{{ star.name }}</td>
+                <td>{{ star.description }}</td>
+                <td>{{ star.eventDate ? star.eventDate|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ star.createdAt ? star.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_stars_show', {'id': star.id}) }}">Voir</a>
+                    <a href="{{ path('app_stars_edit', {'id': star.id}) }}">Modifier</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="10">Aucune stars trouvée.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_stars_new') }}" class="lienBtn">Créer une star</a>
+{% endblock %}

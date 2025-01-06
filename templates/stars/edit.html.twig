@@ -1,0 +1,14 @@
+{% extends 'dashboard/index.html.twig' %}
+
+{% block title %}Modifier Stars{% endblock %}
+
+{% block body %}
+    <h1>Modifier Stars</h1>
+
+    {{ include('stars/_form.html.twig', {'button_label': 'Modifier'}) }}
+    
+
+    <a href="{{ path('app_user_stars') }}">Retour</a>
+
+    {{ include('stars/_delete_form.html.twig') }}
+{% endblock %}

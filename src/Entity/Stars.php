@@ -1,0 +1,200 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\StarsRepository;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: StarsRepository::class)]
+class Stars
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column]
+    private ?int $constellation_id = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $name = null;
+
+    #[ORM\Column]
+    private ?float $x_position = null;
+
+    #[ORM\Column]
+    private ?float $y_position = null;
+
+    #[ORM\Column]
+    private ?float $brightness = null;
+
+    #[ORM\Column(length: 20)]
+    private ?string $color = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updated_at = null;
+
+    #[ORM\Column(length: 300)]
+    private ?string $description = null;
+
+    #[ORM\Column]
+        private ?int $size = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $event_date = null;
+
+    public function __construct()
+    {
+        // Assign current date and time when a new Star entity is created
+        $this->created_at = new \DateTimeImmutable();
+        $this->updated_at = new \DateTimeImmutable();
+    }
+
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): static
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getConstellationId(): ?int
+    {
+        return $this->constellation_id;
+    }
+
+    public function setConstellationId(int $constellation_id): static
+    {
+        $this->constellation_id = $constellation_id;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getXPosition(): ?float
+    {
+        return $this->x_position;
+    }
+
+    public function setXPosition(float $x_position): static
+    {
+        $this->x_position = $x_position;
+
+        return $this;
+    }
+
+    public function getYPosition(): ?float
+    {
+        return $this->y_position;
+    }
+
+    public function setYPosition(float $y_position): static
+    {
+        $this->y_position = $y_position;
+
+        return $this;
+    }
+
+    public function getBrightness(): ?float
+    {
+        return $this->brightness;
+    }
+
+    public function setBrightness(float $brightness): static
+    {
+        $this->brightness = $brightness;
+
+        return $this;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): static
+    {
+        $this->color = $color;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    public function setSize(int $size): static
+    {
+        $this->size = $size;
+
+        return $this;
+    }
+    
+    public function getEventDate(): ?\DateTimeImmutable
+    {
+        return $this->event_date;
+    }
+
+    public function setEventDate(\DateTimeImmutable $event_date): static
+    {
+        $this->event_date = $event_date;
+
+        return $this;
+    }
+}

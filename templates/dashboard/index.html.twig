@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block sidebar %}
+	<aside class="sidebar">
+		<!-- Accueil -->
+		<a href="{{ path('app_home') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_home' %}active{% endif %}">
+			<i class="fas fa-home"></i>
+			Accueil
+		</a>
+
+		<!-- Mes Étoiles -->
+		<a href="{{ path('app_user_stars') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_user_stars' %}active{% endif %}">
+			<i class="fas fa-star"></i>
+			Mes Étoiles
+		</a>
+
+		<!-- Mes Constellations -->
+		<a href="{{ path('app_user_constellations') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_user_constellations' %}active{% endif %}">
+			<i class="fas fa-gem"></i>
+			Mes Constellations
+		</a>
+
+		<!-- Mon Univers -->
+		<a href="#" class="menu-item">
+			<i class="fas fa-globe"></i>
+			Mon Univers
+		</a>
+
+		<!-- Mes Partages -->
+		<a href="#" class="menu-item">
+			<i class="fas fa-share-alt"></i>
+			Mes Partages
+		</a>
+
+		<!-- Divider -->
+		<div class="divider"></div>
+
+		<!-- Paramètres -->
+		<a href="#" class="menu-item">
+			<i class="fas fa-cog"></i>
+			Paramètres
+		</a>
+
+		<!-- Me déconnecter -->
+		<a href="{{ path('app_logout') }}" class="menu-item">
+			<i class="fas fa-sign-out-alt"></i>
+			Me déconnecter
+		</a>
+	</aside>
+{% endblock %}
+
+
+{% block body %}
+	<p>Communauté de MyUniverse</p>
+
+{% endblock %}
