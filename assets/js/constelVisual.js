@@ -1,46 +1,66 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log("constelVisual.js asset chargé");
 
     const selectElement = document.getElementById('etoile-select');
     const selectedStarsContainer = document.getElementById('selected-stars');
-    const etoileJsonInput = document.getElementById('etoile-json'); // Champ caché pour stocker les étoiles
-    let selectedStars = []; // Tableau pour stocker les étoiles sélectionnées
+    const etoileJsonInput = document.getElementById('etoile-json'); // Champ caché pour stocker les étoiles sélectionnées
 
     if (!selectElement || !selectedStarsContainer || !etoileJsonInput) {
-        console.error("❌ Erreur : L'un des éléments est introuvable !");
+        console.error("Erreur : L'un des éléments est introuvable !");
         return;
     }
+
+    console.log("Élément etoileJsonInput trouvé ?", etoileJsonInput);
+
+    let selectedStars = [];
+    
+    // Récupérer et parser les étoiles déjà sélectionnées (évite les erreurs JSON)
+    try {
+        selectedStars = JSON.parse(etoileJsonInput.value || '[]');
+    } catch (error) {
+        console.error("Erreur lors du parsing JSON :", error);
+        etoileJsonInput.value = '[]'; // Réinitialise si erreur
+    }
+
+    console.log('Étoiles sélectionnées au chargement :', selectedStars);
 
     function updateEtoileJson() {
         etoileJsonInput.value = JSON.stringify(selectedStars);
     }
 
+    function createStarTag(value, text) {
+        const tag = document.createElement('div');
+        tag.classList.add('selected-star-tag');
+        tag.innerHTML = `${text} <span class="remove-star" data-value="${value}">✖</span>`;
+        
+        tag.querySelector('.remove-star').addEventListener('click', function () {
+            selectedStars = selectedStars.filter(star => star.name !== text);
+            tag.remove();
+            updateEtoileJson();
+        });
+
+        return tag;
+    }
+
     function addStar(value, text) {
-        // Vérifier si l'étoile est déjà sélectionnée
         if (!selectedStars.some(star => star.name === text)) {
-            selectedStars.push({ name: text }); // Stocker uniquement le nom de l'étoile
-            updateEtoileJson(); // Mettre à jour le champ caché
-
-            const tag = document.createElement('div');
-            tag.classList.add('selected-star-tag');
-            tag.innerHTML = `${text} <span class="remove-star" data-value="${value}">✖</span>`;
-            selectedStarsContainer.appendChild(tag);
-
-            // Ajouter un événement pour la suppression
-            tag.querySelector('.remove-star').addEventListener('click', function() {
-                selectedStars = selectedStars.filter(star => star.name !== text); // Supprimer l'étoile du tableau
-                tag.remove(); // Supprimer du DOM
-                updateEtoileJson(); // Mettre à jour le champ caché
-            });
+            selectedStars.push({ name: text });
+            updateEtoileJson();
+            selectedStarsContainer.appendChild(createStarTag(value, text));
         }
     }
 
-    selectElement.addEventListener('change', function() {
+    // Rendre visibles les étoiles déjà enregistrées
+    selectedStars.forEach(star => {
+        addStar(star.name, star.name);
+    });
+
+    selectElement.addEventListener('change', function () {
         const selectedOption = selectElement.options[selectElement.selectedIndex];
-        if (selectedOption) {
+        if (selectedOption && selectedOption.value) {
             addStar(selectedOption.value, selectedOption.text);
+            //selectElement.value = ""; // Réinitialisation après sélection
         }
-       // selectElement.value = ""; // Réinitialisation pour permettre une nouvelle sélection
     });
 
 });

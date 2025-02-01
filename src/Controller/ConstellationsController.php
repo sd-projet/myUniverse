@@ -93,7 +93,7 @@ final class ConstellationsController extends AbstractController
         $form = $this->createForm(ConstellationsType::class, $constellation, [
             'user_stars' => $userStars
         ]);
-
+        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -139,20 +139,32 @@ final class ConstellationsController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_constellations_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Constellations $constellation, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Constellations $constellation, EntityManagerInterface $entityManager, Security $security): Response
     {
-        $form = $this->createForm(ConstellationsType::class, $constellation);
+        //$form = $this->createForm(ConstellationsType::class, $constellation);
+        //$form->handleRequest($request);
+
+        $user = $security->getUser();
+        $userStars = $entityManager->getRepository(Stars::class)->findBy(['user' => $user]);
+
+        //$constellation = new Constellations();
+        $form = $this->createForm(ConstellationsType::class, $constellation, [
+            'user_stars' => $userStars
+        ]);
         $form->handleRequest($request);
+
+
+        //dd($userStars);
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Vérifier que l'étoile est bien un tableau JSON
-            $etoileJson = $request->request->get('etoile_json');
+            /*$etoileJson = $request->request->get('etoile_json');
             if ($etoileJson) {
                 $etoileArray = json_decode($etoileJson, true);
                 if (is_array($etoileArray)) {
                     $constellation->setEtoile($etoileArray);
                 }
-            }
+            }*/
 
             $entityManager->flush();
 

@@ -38,7 +38,7 @@ class ConstellationsType extends AbstractType
                 'widget' => 'single_text',
             ])
         ;*/
-
+        
         $builder
             ->add('name', TextType::class, [
                 'label' => 'Nom de la Constellation',
@@ -53,15 +53,12 @@ class ConstellationsType extends AbstractType
                 'label' => 'Ajouter des étoiles',
                 'choices' => $options['user_stars'], // Tableau d'objets Stars
                 'choice_label' => 'name', // Affiche le nom de chaque étoile
-                'choice_value' => 'id', // Utilise l'ID de l'étoile comme valeur
+                //'choice_value' => 'id', // Utilise l'ID de l'étoile comme valeur
                 'multiple' => true, // Permet la sélection multiple
                 'expanded' => false, // Affichage sous forme de cases à cocher
                 'attr' => ['class' => 'etoile-select'],
-
-            ])
-            
-            ;
-
+            ]);
+           
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -69,7 +66,6 @@ class ConstellationsType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Constellations::class,
             'user_stars' => [],
-
         ]);
     }
 }
