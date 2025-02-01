@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    console.log("starVisual.js public chargé");
+    
     const container = document.getElementById('threejs-container');
 
     // Créer une scène, une caméra et un rendu comme d'habitude
@@ -42,6 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ajouter l'étoile à la scène
     scene.add(starMesh);
 
+    console.log("verif etoile"+ scene.children); // Vérifier si l'étoile est bien ajoutée
+
+
     // Ajouter une lumière pour que l'étoile soit visible
     const light = new THREE.PointLight(0xffffff, 1, 100);
     light.position.set(10, 10, 10);
@@ -68,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Écouter les événements de la souris
     container.addEventListener('mousedown', (event) => {
         console.log('mousedown');
+        event.preventDefault();
         // Calculer la position de la souris en coordonnées normalisées
         pointer.x = (event.clientX / container.offsetWidth) * 2 - 1;
         pointer.y = -(event.clientY / container.offsetHeight) * 2 + 1;
@@ -85,21 +92,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     container.addEventListener('mousemove', (event) => {
-        console.log('mousemove');
-        if (isDragging && selectedObject) {
-            // Calculer la position de la souris
-            pointer.x = (event.clientX / container.offsetWidth) * 2 - 1;
-            pointer.y = -(event.clientY / container.offsetHeight) * 2 + 1;
+        event.preventDefault();
+        if (!isDragging || !selectedObject) return;
 
-            // Mettre à jour le raycaster
-            raycaster.setFromCamera(pointer, camera);
+        pointer.x = (event.clientX / container.offsetWidth) * 2 - 1;
+        pointer.y = -(event.clientY / container.offsetHeight) * 2 + 1;
 
-            // Calculer la nouvelle position dans le plan
-            const planeZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), -camera.position.z);
-            const intersection = new THREE.Vector3();
-            raycaster.ray.intersectPlane(planeZ, intersection);
-
-            // Mettre à jour la position de l'objet sélectionné
+        raycaster.setFromCamera(pointer, camera);
+        const planeZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), -camera.position.z);
+        const intersection = new THREE.Vector3();
+        if (raycaster.ray.intersectPlane(planeZ, intersection)) {
             selectedObject.position.x = intersection.x;
             selectedObject.position.y = intersection.y;
         }

@@ -28,6 +28,15 @@
                 <th>Updated_at</th>
                 <td>{{ constellation.updatedAt ? constellation.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
+            <tr>
+                <th>My Stars</th>
+                <td>
+                    {% for star in constellation.etoile %}
+                        <a href="{{ path('app_stars_show', {'id': star.id}) }}">{{ star.name }}</a>
+                    {% else %}
+                        <p>No stars for this constellation</p>
+                    {% endfor %}
+                </td>
         </tbody>
     </table>
 

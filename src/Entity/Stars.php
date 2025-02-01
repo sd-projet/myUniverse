@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\StarsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: StarsRepository::class)]
 class Stars
@@ -12,6 +13,10 @@ class Stars
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
+    private ?User $user = null;
 
     #[ORM\Column]
     private ?int $constellation_id = null;
@@ -41,14 +46,18 @@ class Stars
     private ?string $description = null;
 
     #[ORM\Column]
-        private ?int $size = null;
+    private ?int $size = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $event_date = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $modelPath = null;
+
+
+
     public function __construct()
     {
-        // Assign current date and time when a new Star entity is created
         $this->created_at = new \DateTimeImmutable();
         $this->updated_at = new \DateTimeImmutable();
     }
@@ -65,6 +74,18 @@ class Stars
 
         return $this;
     }
+
+    public function setUser(User $user): static
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
 
     public function getConstellationId(): ?int
     {
@@ -185,7 +206,7 @@ class Stars
 
         return $this;
     }
-    
+
     public function getEventDate(): ?\DateTimeImmutable
     {
         return $this->event_date;
@@ -197,4 +218,38 @@ class Stars
 
         return $this;
     }
+
+    public function getModelPath(): ?string
+    {
+        return $this->modelPath;
+    }
+
+    public function setModelPath(string $modelPath): static
+    {
+        $this->modelPath = $modelPath;
+        return $this;
+    }
+
+    public function __toString(): string
+{
+    return $this->name ?? 'Unnamed Star'; // Retourne le nom de l'étoile
+}
+
+    public function getStarProperties(): array
+    {
+        return [
+            'name' => $this->name,
+            'description' => $this->description,
+            'size' => $this->size,
+            'color' => $this->color,
+            'brightness' => $this->brightness,
+            'event_date' => $this->event_date->format('Y-m-d'),
+            'x_position' => $this->x_position,
+            'y_position' => $this->y_position,
+            'modelPath' => $this->modelPath,
+        ];
+    }
+
+    
+   
 }

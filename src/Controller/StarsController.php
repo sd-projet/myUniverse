@@ -10,6 +10,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+
+#[IsGranted('IS_AUTHENTICATED_FULLY')] #  restriction pour que seuls les utilisateurs connectés puissent accéder aux pages du CRUD.
 
 #[Route('/stars')]
 final class StarsController extends AbstractController
@@ -17,8 +25,11 @@ final class StarsController extends AbstractController
     #[Route(name: 'app_user_stars', methods: ['GET'])]
     public function index(StarsRepository $starsRepository): Response
     {
+        $user = $this->getUser();
         return $this->render('stars/index.html.twig', [
-            'stars' => $starsRepository->findAll(),
+            //'stars' => $starsRepository->findAll(),
+            'stars' => $starsRepository->findBy(['user' => $user]),
+
         ]);
     }
 
@@ -30,10 +41,27 @@ final class StarsController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $star->setUser($this->getUser());  // Associer l'utilisateur connecté
+
+            $modelFile = $form->get('modelFile')->getData();
+    
+            if ($modelFile) {
+                $newFilename = uniqid() . '.' . $modelFile->guessExtension();
+                
+                try {
+                    $modelFile->move(
+                        $this->getParameter('models_directory'), // Défini dans services.yaml
+                        $newFilename
+                    );
+                    $star->setModelPath($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur lors de l’upload du modèle.');
+                }
+            }  
             $entityManager->persist($star);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_user_stars', [], Response::HTTP_SEE_OTHER);
+           return $this->redirectToRoute('app_user_stars', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('stars/new.html.twig', [
@@ -41,6 +69,14 @@ final class StarsController extends AbstractController
             'form' => $form,
         ]);
     }
+    
+
+    #[Route('/get-star/{id}', name: 'get_star', methods: ['GET'])]
+    public function getStar(Stars $star): JsonResponse
+    {
+        return new JsonResponse($star->getStarProperties());
+    }
+
 
     #[Route('/{id}', name: 'app_stars_show', methods: ['GET'])]
     public function show(Stars $star): Response

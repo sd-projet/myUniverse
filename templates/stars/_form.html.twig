@@ -22,11 +22,11 @@
             <div>
                 <div class="form-group">
                     {{ form_label(form.color, 'Couleur') }}
-                    {{ form_widget(form.color, {'attr': {'class': 'form-control', 'type': 'color', 'placeholder': 'Choisissez la couleur de votre étoile'}}) }}
+                    {{ form_widget(form.color, {'attr': {'id':'starColor','class': 'form-control', 'type': 'color', 'placeholder': 'Choisissez la couleur de votre étoile'}}) }}
                 </div>
                 <div class="form-group">
                     {{ form_label(form.size, 'Taille') }}
-                    {{ form_widget(form.size, {'attr': {'class': 'form-control', 'type': 'number', 'placeholder': 'Choisissez la taille de votre étoile'}}) }}
+                    {{ form_widget(form.size, {'attr': {'id':'starSize','class': 'form-control', 'type': 'number', 'placeholder': 'Choisissez la taille de votre étoile'}}) }}
                 </div>
 
                 <div class="form-group">
@@ -47,12 +47,11 @@
 
             <div class="form-footer">
                 <button type="submit">{{ button_label|default('Créer mon étoile') }}</button>
-
             </div>
            
         </div>
-         <!-- Conteneur pour la vue 3D -->
-            <div id="threejs-container"></div>
+        <!-- Conteneur pour la vue 3D -->
+        <div id="threejs-container"></div>
     {{ form_end(form) }}
     </div>
 </div>

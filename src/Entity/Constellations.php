@@ -4,6 +4,10 @@ namespace App\Entity;
 
 use App\Repository\ConstellationsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\EntityManagerInterface;
+
 
 #[ORM\Entity(repositoryClass: ConstellationsRepository::class)]
 #[ORM\HasLifecycleCallbacks]  // Permet d'utiliser les événements de Doctrine
@@ -29,6 +33,18 @@ class Constellations
 
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $updated_at = null;
+
+    #[ORM\Column(type: 'json')]
+    private ?array $etoile = [];
+
+    #[ORM\ManyToMany(targetEntity: Stars::class, inversedBy: 'constellations')]
+    #[ORM\JoinTable(name: 'constellation_stars')]
+    private Collection $stars;
+
+    public function __construct()
+    {
+        $this->stars = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -85,9 +101,39 @@ class Constellations
         $this->updated_at = new \DateTimeImmutable(); // Aussi initialisé lors de la création
     }
 
-    #[ORM\PreUpdate]  // Exécuté avant qu'une entité soit mise à jour
+    #[ORM\PreUpdate]
     public function setUpdatedAtValue(): void
     {
         $this->updated_at = new \DateTimeImmutable();
+    }
+
+    public function getEtoile(): array
+    {
+        //return $this->etoile;
+        return $this->etoile ?? [];
+    }
+
+    public function setEtoile(array $etoile): static
+    {
+        $this->etoile[] = $etoile;
+        return $this;
+    }
+
+    public function getEtoileObjects(EntityManagerInterface $entityManager): array
+    {
+        if (empty($this->etoile)) {
+            return [];
+        }
+        return $entityManager->getRepository(Stars::class)->findBy(['id' => $this->etoile]);
+    }
+
+
+    public function addStar(Stars $star): self
+    {
+        if (!$this->stars->contains($star)) {
+            $this->stars[] = $star;
+        }
+
+        return $this;
     }
 }

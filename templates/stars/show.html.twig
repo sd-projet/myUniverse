@@ -43,12 +43,19 @@
                 <th>Updated_at</th>
                 <td>{{ star.updatedAt ? star.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
+            <tr>
+                <th>Ma Star</th>
+                <td>
+                   
+
+
+                </td>
+            </tr>
         </tbody>
     </table>
 
-    <a href="{{ path('app_user_stars') }}">Retour</a>
+    <a href="{{ path('app_user_stars') }}" class="lienBtn">Retour</a>
 
-    <a href="{{ path('app_stars_edit', {'id': star.id}) }}">Modifier</a>
-
+    <a href="{{ path('app_stars_edit', {'id': star.id}) }}" class="lienBtn">Modifier</a>
     {{ include('stars/_delete_form.html.twig') }}
 {% endblock %}

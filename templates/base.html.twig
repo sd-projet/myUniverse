@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="{{ asset('styles/threejs.css') }}">
 </head>
 
-
 <body>
 {% block javascripts %}
     <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
@@ -29,7 +28,10 @@
     }
     </script>
     
-    <script src="../js/starVisual.js"></script>
+   <!-- <script src="../js/starVisual.js"></script>-->
+    <script src="{{ asset('js/starVisual.js') }}"></script>
+    <script src="{{ asset('js/constelVisual.js') }}"></script>
+
 
 {% endblock %}
     <header class="header">
