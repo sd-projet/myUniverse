@@ -37,7 +37,8 @@ class RegistrationFormType extends AbstractType
                     new Assert\Length(['min' => 6]),
                 ],
                 'label' => 'Mot de passe',
-            ]);
+            ])
+            ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

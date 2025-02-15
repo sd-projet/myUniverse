@@ -13,9 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
-
-// Restreindre l'accès à l'ensemble du contrôleur
 #[IsGranted('IS_AUTHENTICATED_FULLY')] #  restriction pour que seuls les utilisateurs connectés puissent accéder aux pages du CRUD.
 #[Route('/constellations')]
 final class ConstellationsController extends AbstractController
@@ -34,55 +33,6 @@ final class ConstellationsController extends AbstractController
         ]);
     }
 
-    /* #[Route('/new', name: 'app_constellations_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $constellation = new Constellations();
-        $form = $this->createForm(ConstellationsType::class, $constellation);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $constellation->setUser($this->getUser());  // Associer l'utilisateur connecté
-            $constellation->setCreatedAtValue(new \DateTimeImmutable());
-            $entityManager->persist($constellation);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_user_constellations', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('constellations/new.html.twig', [
-            'constellation' => $constellation,
-            'form' => $form,
-        ]);
-    }*/
-
-    /* #[Route('/new', name: 'app_constellations_new', methods: ['GET', 'POST'])]
-    public function create(Request $request, EntityManagerInterface $entityManager, Security $security): Response
-    {
-        $user = $security->getUser();
-        $userStars = $entityManager->getRepository(Stars::class)->findBy(['user' => $user]);
-
-        $constellation = new Constellations();
-        $form = $this->createForm(ConstellationsType::class, $constellation, [
-            'user_stars' => $userStars
-        ]);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $constellation->setUser($this->getUser());  // Associer l'utilisateur connecté
-            $constellation->setCreatedAtValue(new \DateTimeImmutable());
-        
-            $entityManager->persist($constellation);
-            $entityManager->flush();
-            return $this->redirectToRoute('app_user_constellations', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('constellations/new.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }*/
-
-
     #[Route('/new', name: 'app_constellations_new', methods: ['GET', 'POST'])]
     public function create(Request $request, EntityManagerInterface $entityManager, Security $security): Response
     {
@@ -93,42 +43,50 @@ final class ConstellationsController extends AbstractController
         $form = $this->createForm(ConstellationsType::class, $constellation, [
             'user_stars' => $userStars
         ]);
-        
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $constellation->setUser($this->getUser());
-            $constellation->setCreatedAtValue(new \DateTimeImmutable());
+            try {
+                $constellation->setUser($user);
+                $constellation->setCreatedAtValue(new \DateTimeImmutable());
 
-            // Récupérer les noms des étoiles depuis l'input caché
-            $etoileJson = $request->request->get('etoile_json');
-            if ($etoileJson) {
-                $etoileArray = json_decode($etoileJson, true);
-                $constellation->setEtoile($etoileArray); // Stocker uniquement les noms des étoiles
+                // Récupérer et valider les étoiles sélectionnées via le champ caché
+                $etoileJson = $request->request->get('etoile_json');
+
+                if (!empty($etoileJson)) {
+                    $etoileArray = json_decode($etoileJson, true);
+
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($etoileArray)) {
+                        // Suppression des doublons par nom
+                        $etoileUniques = [];
+                        foreach ($etoileArray as $etoile) {
+                            if (!isset($etoileUniques[$etoile['name']])) {
+                                $etoileUniques[$etoile['name']] = $etoile;
+                            }
+                        }
+                        $constellation->setEtoile(array_values($etoileUniques));
+                    } else {
+                        $this->addFlash('danger', 'Les données des étoiles sont invalides.');
+                    }
+                }
+
+                $entityManager->persist($constellation);
+                $entityManager->flush();
+
+                return $this->redirectToRoute('app_user_constellations', [], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('danger', 'Une erreur est survenue lors de la création de la constellation.');
             }
-
-            // Forcer la conversion en tableau JSON si nécessaire
-            $etoileSelectionnees = $form->get('etoile')->getData();
-            if (!is_array($etoileSelectionnees)) {
-                $etoileSelectionnees = [$etoileSelectionnees]; // Convertir en tableau si ce n'est pas déjà le cas
-            }
-
-            $constellation->setEtoile($etoileSelectionnees);  // Stocker les ID sélectionnés en JSON
-
-
-            $entityManager->persist($constellation);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_user_constellations', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('constellations/new.html.twig', [
             'form' => $form->createView(),
+            'etoiles_json' => json_encode($constellation->getEtoile() ?? []), // Vérification pour éviter les erreurs JS
+            'userStars' => $userStars
+
         ]);
     }
-
-
-
 
     #[Route('/{id}', name: 'app_constellations_show', methods: ['GET'])]
     public function show(Constellations $constellation): Response
@@ -141,30 +99,40 @@ final class ConstellationsController extends AbstractController
     #[Route('/{id}/edit', name: 'app_constellations_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Constellations $constellation, EntityManagerInterface $entityManager, Security $security): Response
     {
-        //$form = $this->createForm(ConstellationsType::class, $constellation);
-        //$form->handleRequest($request);
-
         $user = $security->getUser();
+
+        // Vérification si l'utilisateur est propriétaire de la constellation
+        if ($constellation->getUser() !== $user) {
+            throw $this->createAccessDeniedException("Vous n'avez pas l'autorisation de modifier cette constellation.");
+        }
+
         $userStars = $entityManager->getRepository(Stars::class)->findBy(['user' => $user]);
 
-        //$constellation = new Constellations();
         $form = $this->createForm(ConstellationsType::class, $constellation, [
             'user_stars' => $userStars
         ]);
         $form->handleRequest($request);
 
-
-        //dd($userStars);
-
         if ($form->isSubmitted() && $form->isValid()) {
-            // Vérifier que l'étoile est bien un tableau JSON
-            /*$etoileJson = $request->request->get('etoile_json');
-            if ($etoileJson) {
+            // Récupération et validation des étoiles sélectionnées
+            $etoileJson = $request->request->get('etoile_json');
+
+            if (!empty($etoileJson)) {
                 $etoileArray = json_decode($etoileJson, true);
-                if (is_array($etoileArray)) {
-                    $constellation->setEtoile($etoileArray);
+
+                if (json_last_error() === JSON_ERROR_NONE && is_array($etoileArray)) {
+                    // Suppression des doublons en utilisant le nom comme clé
+                    $uniqueEtoiles = [];
+                    foreach ($etoileArray as $etoile) {
+                        if (!isset($uniqueEtoiles[$etoile['name']])) {
+                            $uniqueEtoiles[$etoile['name']] = $etoile;
+                        }
+                    }
+                    $constellation->setEtoile(array_values($uniqueEtoiles));
+                } else {
+                    $this->addFlash('danger', 'Les données des étoiles sont invalides.');
                 }
-            }*/
+            }
 
             $entityManager->flush();
 
@@ -174,10 +142,11 @@ final class ConstellationsController extends AbstractController
         return $this->render('constellations/edit.html.twig', [
             'constellation' => $constellation,
             'form' => $form->createView(),
-            'etoiles_json' => json_encode($constellation->getEtoile()) // Pour le script JS
-            //'form' => $form,
+            'etoiles_json' => json_encode($constellation->getEtoile() ?? []), // Vérification pour éviter les erreurs JS
+            'userStars' => $userStars,
         ]);
     }
+
 
     #[Route('/{id}', name: 'app_constellations_delete', methods: ['POST'])]
     public function delete(Request $request, Constellations $constellation, EntityManagerInterface $entityManager): Response

@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="{{ asset('styles/styles.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/tables.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/threejs.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/photoProfil.css') }}">
+
+    
 </head>
 
 <body>
@@ -31,9 +34,19 @@
    <!-- <script src="../js/starVisual.js"></script>-->
     <script src="{{ asset('js/starVisual.js') }}"></script>
     <script src="{{ asset('js/constelVisual.js') }}"></script>
+    <script src="{{ asset('js/choixEtoile.js') }}"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        feather.replace();
+    </script>
+
+    <script src="{{ asset('js/photoProfil.js') }}"></script>
 
 
 {% endblock %}
+
     <header class="header">
         <!-- Navbar -->
         <div class="navbar">
@@ -43,11 +56,19 @@
             <div class="shooting-star"></div>
             <div class="shooting-star"></div>
             <div class="shooting-star"></div>
-            <div class="links">
-                <a href="{{ path('app_home') }}">Accueil</a>
-                <a href="{{ path('app_login') }}">Connexion</a>
-                <a href="{{ path('app_register') }}">Inscription</a>
-            </div>
+            {% if app.user %}
+                <div class="links">
+                    <!--<a href="{#{{ path('app_profile') }}#}">Profil</a>-->
+                    <a href="{{ path('app_logout') }}">Déconnexion</a>
+                </div>
+            {% else %}
+                <div class="links">
+                    <a href="{{ path('app_home') }}">Accueil</a>
+                    <a href="{{ path('app_login') }}">Connexion</a>
+                    <a href="{{ path('app_register') }}">Inscription</a>
+                </div>
+            {% endif %}
+            
         </div>
     </header>
 
@@ -58,8 +79,6 @@
             {% block body %}{% endblock %}
         </main>
     </div>
-    <footer class="footer">
-        <p>© 2024 Cosmic Universe. All Rights Reserved.</p>
-    </footer>
+
 </body>
 </html>

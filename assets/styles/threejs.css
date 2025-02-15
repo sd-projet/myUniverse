@@ -7,3 +7,12 @@
     border-radius: 8px;
 }
 
+
+#threejs-containerConstel {
+    grid-column: span 2; /* Étend sur 2 colonnes */
+    min-height: 200px;
+    background-color: #000;
+    border: 1px solid #c6aa0069;
+    border-radius: 8px;
+}
+

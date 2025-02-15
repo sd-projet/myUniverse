@@ -6,9 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Créer une scène, une caméra et un rendu comme d'habitude
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+    //const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(75, 315/ 480, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(container.offsetWidth, container.offsetHeight);
+    renderer.setSize(315, 480);
+    //renderer.setSize(container.offsetWidth, container.offsetHeight);
+
     container.appendChild(renderer.domElement);
 
     // Fonction pour créer une étoile 2D
@@ -87,29 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    /*container.addEventListener('mousemove', (event) => {
-        console.log('mousemove');
-        event.preventDefault();
-
-        if (isDragging && selectedObject) {
-            // Calculer la position de la souris
-            pointer.x = (event.clientX / container.offsetWidth) * 2 - 1;
-            pointer.y = -(event.clientY / container.offsetHeight) * 2 + 1;
-
-            // Mettre à jour le raycaster
-            raycaster.setFromCamera(pointer, camera);
-
-            // Calculer la nouvelle position dans le plan
-            const planeZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), -camera.position.z);
-            const intersection = new THREE.Vector3();
-            raycaster.ray.intersectPlane(planeZ, intersection);
-
-            // Mettre à jour la position de l'objet sélectionné
-            selectedObject.position.x = intersection.x;
-            selectedObject.position.y = intersection.y;
-        }
-    });*/
-
     container.addEventListener('mousemove', (event) => {
         event.preventDefault();
         if (!isDragging || !selectedObject) return;
@@ -161,6 +141,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('input').forEach(input => {
         input.dispatchEvent(new Event('input'));
     });
+
+    document.addEventListener("starsUpdated", (event) => {
+        const stars = event.detail;
+        console.log("Mise à jour des étoiles dans Three.js :", stars);
+    
+        removeAllStars();
+    
+        stars.forEach(star => {
+            addStarToScene(star.name, star.x, star.y, star.z, star.color);
+        });
+    });
+    
 
     console.log("starVisual.js de asset fini");
 

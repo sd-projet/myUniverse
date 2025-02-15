@@ -38,9 +38,9 @@
 		<div class="divider"></div>
 
 		<!-- Paramètres -->
-		<a href="#" class="menu-item">
-			<i class="fas fa-cog"></i>
-			Paramètres
+		<a href="{{ path('app_user_settings') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_user_constellations' %}active{% endif %}">
+			<i class="fas fa-user"></i>
+			Mon profil
 		</a>
 
 		<!-- Me déconnecter -->

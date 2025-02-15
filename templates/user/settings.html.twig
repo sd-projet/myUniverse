@@ -1,0 +1,109 @@
+{% extends 'dashboard/index.html.twig' %}
+
+{% block body %}
+    <h1>Modifier mes données</h1>
+    <br>
+
+   {{ form_start(form) }}
+        <div class="dropzone-container">
+            <label for="profilePicture" class="dropzone">
+                <img id="profilePreview" src="{{ asset('uploads/profile_pictures/' ~ (app.user.profilePicture ?: 'default.jpg')) }}" alt="Photo de profil">
+                <span class="dropzone-text">Glissez-déposez une image ici ou cliquez</span>
+            </label>
+            {{ form_widget(form.profilePicture, { 'attr': { 'id': 'profilePicture', 'class': 'hidden-input' } }) }}
+        </div>
+
+        <div class="input-container" style="gap: 10px;">
+            {{ form_row(form.name) }}
+            {{ form_row(form.email) }}
+        </div>
+
+        <br>
+
+        <div>
+            {{ form_label(form.plainPassword) }}
+            <div class="input-container">
+                {{ form_widget(form.plainPassword, {'id': 'password', 'type': 'password'}) }}
+                <i class="fa-solid fa-eye togglePassword" data-target="confirmPassword"></i>
+            </div>
+        </div>
+
+        <div>
+            {{ form_label(form.confirmPassword) }}
+            <div class="input-container">
+                {{ form_widget(form.confirmPassword,  {'id': 'confirmPassword', 'type': 'password'}) }}
+                <i class="fa-solid fa-eye togglePassword" data-target="confirmPassword"></i>
+            </div>
+        </div>
+
+        <button type="submit" class="lienBtn">Enregistrer</button>
+    {{ form_end(form) }}
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+
+    <script>
+         document.querySelectorAll(".togglePassword").forEach(icon => {
+            icon.addEventListener("click", function () {
+                let target = document.getElementById(this.getAttribute("data-target"));
+                if (target.type === "password") {
+                    target.type = "text";
+                    this.classList.remove("fa-eye");
+                    this.classList.add("fa-eye-slash");
+                } else {
+                    target.type = "password";
+                    this.classList.remove("fa-eye-slash");
+                    this.classList.add("fa-eye");
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            let alerts = document.querySelectorAll(".alert");
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = "0";
+                    setTimeout(() => alert.remove(), 500);
+                }, 3000);
+            });
+        });
+
+    </script>
+
+    <style>
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px; 
+        }
+
+        .input-container input {
+            width: 100%;
+            padding-right: 35px; /* Pour éviter que l'icône cache le texte */
+        }
+
+        .togglePassword {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: #ffffff;
+        }
+
+        .togglePassword:hover {
+            color: #ffffff;
+        }
+    </style>
+{% endblock %}

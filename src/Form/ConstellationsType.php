@@ -13,6 +13,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use App\Entity\Stars;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+
 
 class ConstellationsType extends AbstractType
 {
@@ -38,7 +40,6 @@ class ConstellationsType extends AbstractType
                 'widget' => 'single_text',
             ])
         ;*/
-        
         $builder
             ->add('name', TextType::class, [
                 'label' => 'Nom de la Constellation',
@@ -57,7 +58,10 @@ class ConstellationsType extends AbstractType
                 'multiple' => true, // Permet la sélection multiple
                 'expanded' => false, // Affichage sous forme de cases à cocher
                 'attr' => ['class' => 'etoile-select'],
-            ]);
+            ])
+           ;
+            
+            ;
            
     }
 

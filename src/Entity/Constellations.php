@@ -115,7 +115,7 @@ class Constellations
 
     public function setEtoile(array $etoile): static
     {
-        $this->etoile[] = $etoile;
+        $this->etoile = $etoile;
         return $this;
     }
 
@@ -131,7 +131,8 @@ class Constellations
     public function addStar(Stars $star): self
     {
         if (!$this->stars->contains($star)) {
-            $this->stars[] = $star;
+            $this->stars->add($star);
+            //$this->stars[] = $star;
         }
 
         return $this;

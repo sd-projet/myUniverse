@@ -3,3 +3,8 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+show_constellation:
+    path: /constellation/{id}
+    controller: App\Controller\ConstellationController::show
+    methods: ['POST']

@@ -13,17 +13,23 @@
 						{{ form_label(form.description, 'Description') }}
 						{{ form_widget(form.description, {'attr': {'placeholder': 'Décrivez votre constellation'}}) }}
 					</div>
-
-
 				</div>
 				<div>
 					<div class="form-group">
 						{{ form_label(form.etoile, 'Ajouter des étoiles') }}
-						{{ form_widget(form.etoile, {'id': 'etoile-select' , 'multiple': 'multiple'}) }}
+						{#{{ form_widget(form.etoile, {'id': 'etoile-select' , 'multiple': 'multiple'}) }}#}
+						<select id="etoile-select">
+							{% for star in userStars %}
+								<option value='{{ { "name": star.name, "x": star.xPosition, "y": star.yPosition, "color": star.color }|json_encode|raw }}'>
+									{{ star.name }}
+								</option>
+							{% endfor %}
+						</select>
+						
 						{{ form_errors(form.etoile) }}
-						<!--<input type="hidden" id="etoile-json" name="etoile_json"> -->
 						<!-- Champ caché -->
-						<input type="hidden" id="etoile-json" name="etoile_json" value='{{ form.etoile.vars.value|json_encode }}'> <div id="selected-stars"></div>
+						<div id="selected-stars"></div>
+						<input type="hidden" id="etoile-json" name="etoile_json" value='{{ etoiles_json|raw }}'>
 					</div>
 				</div>
 
@@ -31,12 +37,11 @@
 				<div id="threejs-containerConstel"></div>
 
 				<div class="form-footer">
-					<button type="submit">{{ button_label|default('Créer ma contellation') }}</button>
+					<button type="submit">{{ button_label|default('Créer ma constellation') }}</button>
 				</div>
 
 				{{ form_end(form) }}
 			</div>
-		
-			
-			</div>
-		{% endblock %}
+		</div>
+	</div>
+{% endblock %}
