@@ -5,16 +5,12 @@ namespace App\Controller;
 use App\Entity\Stars;
 use App\Form\StarsType;
 use App\Repository\StarsRepository;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -27,7 +23,6 @@ final class StarsController extends AbstractController
     {
         $user = $this->getUser();
         return $this->render('stars/index.html.twig', [
-            //'stars' => $starsRepository->findAll(),
             'stars' => $starsRepository->findBy(['user' => $user]),
         ]);
     }
@@ -100,7 +95,7 @@ final class StarsController extends AbstractController
 
         $imageData = $data['image'];  // récupère l'image depuis les données
 
-        // Traitement de l'image (par exemple, la décoder et l'enregistrer)
+        // Traitement de l'image
         $base64 = str_replace('data:image/png;base64,', '', $imageData);
         $decodedImage = base64_decode($base64);
 
@@ -108,7 +103,7 @@ final class StarsController extends AbstractController
             return new JsonResponse(['error' => 'Erreur lors du décodage de l\'image'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        // Sauvegarde de l'image dans un fichier (exemple)
+        // Sauvegarde de l'image 
         $fileName = 'star_' . $id . '.png';
         $filePath = 'uploads/images/' . $fileName;
         
@@ -121,15 +116,12 @@ final class StarsController extends AbstractController
         $star->setImageUrl($filePath);
         $entityManager->flush();
 
-
         // Retourner une réponse JSON avec le chemin de l'image
         return new JsonResponse([
             'message' => 'Image enregistrée avec succès',
             'path' => $filePath
         ]);
     }
-
-
 
     #[Route('/{id}', name: 'app_stars_delete', methods: ['POST'])]
     public function delete(Request $request, Stars $star, EntityManagerInterface $entityManager): Response

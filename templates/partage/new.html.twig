@@ -3,9 +3,9 @@
 {% block title %}New Partage{% endblock %}
 
 {% block body %}
-    <h1>Create new Partage</h1>
+    <h1>Publier un poste</h1>
 
     {{ include('partage/_form.html.twig') }}
 
-    <a href="{{ path('app_partage_index') }}">back to list</a>
+    <a href="{{ path('app_partage_index') }}" class="lienBtn">Retour</a>
 {% endblock %}

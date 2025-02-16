@@ -1,6 +1,6 @@
 {% extends 'dashboard/index.html.twig' %}
 
 {% block body %}
-    <p><a href="{{ path('app_user_stars') }}">Retour</a></p>
+    <p><a href="{{ path('app_user_stars') }}" class="lienBtn">Retour</a></p>
     {{ include('stars/_form.html.twig') }}
 {% endblock %}

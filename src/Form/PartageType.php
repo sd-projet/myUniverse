@@ -1,5 +1,4 @@
 <?php
-// src/Form/PostType.php
 
 namespace App\Form;
 

@@ -30,31 +30,28 @@ class RegistrationController extends AbstractController
             'no_store' => true,
         ]);
 
-
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hash the plain password
+            // Hash le mot de passe
             $hashedPassword = $passwordHasher->hashPassword(
                 $user,
                 $form->get('password')->getData()
             );
             $user->setPassword($hashedPassword);
 
-            // Set a default role
+            // Attribution du rôle ROLE_USER
             $user->setRoles(['ROLE_USER']);
 
-            // Save the user
+            // Enregistrement de l'utilisateur
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // Redirect to the login page or any other page
+            // Redirection vers la page de connexion
             return $this->redirectToRoute('app_login');
         }
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
-
             $response
         ]);
     }
-
 }

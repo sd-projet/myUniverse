@@ -1,4 +1,4 @@
-// Générer des étoiles filantes de manière aléatoire
+// Générer des étoiles filantes de manière aléatoire dans la navbar
 window.onload = function() {
     let starContainer = document.querySelector('.background-stars');
     for (let i = 0; i < 20; i++) { // Crée 20 étoiles filantes

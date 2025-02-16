@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 
-
 #[ORM\Entity(repositoryClass: ConstellationsRepository::class)]
 #[ORM\HasLifecycleCallbacks]  // Permet d'utiliser les événements de Doctrine
 class Constellations
@@ -115,7 +114,6 @@ class Constellations
 
     public function getEtoile(): array
     {
-        //return $this->etoile;
         return $this->etoile ?? [];
     }
 
@@ -138,7 +136,6 @@ class Constellations
     {
         if (!$this->stars->contains($star)) {
             $this->stars->add($star);
-            //$this->stars[] = $star;
         }
 
         return $this;
@@ -165,9 +162,7 @@ class Constellations
 
     public function getLines(): ?array
     {
-        //return $this->lines_etoiles;
         return $this->lines_etoiles ?? [];
-
     }
 
     public function setLines(?array $linesEtoiles): self

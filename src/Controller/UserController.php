@@ -26,7 +26,7 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             
-            // ✅ Gestion du mot de passe
+            // Gestion du mot de passe
             $plainPassword = $form->get('plainPassword')->getData();
             $confirmPassword = $form->get('confirmPassword')->getData();
 
@@ -40,7 +40,7 @@ class UserController extends AbstractController
                 $user->setPassword($hashedPassword);
             }
 
-            // ✅ Gestion de l'upload de la photo de profil
+            // Gestion de l'upload de la photo de profil
             /** @var UploadedFile $profilePictureFile */
             $profilePictureFile = $form->get('profilePicture')->getData();
 
@@ -68,7 +68,7 @@ class UserController extends AbstractController
                 }
             }
 
-            // ✅ Sauvegarde dans la BDD
+            // Sauvegarde dans la BDD
             $entityManager->persist($user);
             $entityManager->flush();
 

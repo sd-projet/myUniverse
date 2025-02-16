@@ -14,19 +14,16 @@ class Partage
     #[ORM\Column]
     private ?int $id = null;
 
-    //#[ORM\Column(length: 255)]
-    //private ?string $user = null;
-
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Stars::class)]
-    #[ORM\JoinColumn(nullable: true)] // Peut être null si c'est une constellation
+    #[ORM\JoinColumn(nullable: true)] 
     private ?Stars $star = null;
 
     #[ORM\ManyToOne(targetEntity: Constellations::class)]
-    #[ORM\JoinColumn(nullable: true)] // Peut être null si c'est une étoile
+    #[ORM\JoinColumn(nullable: true)] 
     private ?Constellations $constellation = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -84,7 +81,6 @@ class Partage
     public function setStar(?Stars $star): static
     {
         $this->star = $star;
-
         return $this;
     }
 
@@ -96,7 +92,6 @@ class Partage
     public function setConstellation(?Constellations $constellation): static
     {
         $this->constellation = $constellation;
-
         return $this;
     }
 
@@ -108,8 +103,19 @@ class Partage
     public function setImageUrl(?string $imageUrl): static
     {
         $this->imageUrl = $imageUrl;
-
+        $this->updateImageUrl(); // Met à jour l'URL de l'image
         return $this;
+    }
+
+    public function updateImageUrl(): void
+    {
+        if ($this->star) {
+            $this->imageUrl = $this->star->getImageUrl();
+        } elseif ($this->constellation) {
+            $this->imageUrl = $this->constellation->getImageUrl();
+        } else {
+            $this->imageUrl = null;
+        }
     }
 
     public function getData(): array
@@ -135,6 +141,5 @@ class Partage
 
         return $this;
     }
-
 
 }

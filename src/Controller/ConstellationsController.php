@@ -22,10 +22,6 @@ final class ConstellationsController extends AbstractController
     #[Route(name: 'app_user_constellations', methods: ['GET'])]
     public function index(ConstellationsRepository $constellationsRepository): Response
     {
-        /*return $this->render('constellations/index.html.twig', [
-            'constellations' => $constellationsRepository->findAll(),
-        ]);*/
-
         $user = $this->getUser();
 
         return $this->render('constellations/index.html.twig', [
@@ -91,7 +87,7 @@ final class ConstellationsController extends AbstractController
 
         return $this->render('constellations/new.html.twig', [
             'form' => $form->createView(),
-            'etoiles_json' => json_encode($constellation->getEtoile() ?? []), // Vérification pour éviter les erreurs JS
+            'etoiles_json' => json_encode($constellation->getEtoile() ?? []), 
             'userStars' => $userStars,
             'constellation' => $constellation,
         ]);
@@ -108,7 +104,6 @@ final class ConstellationsController extends AbstractController
     #[Route('/{id}/edit', name: 'app_constellations_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Constellations $constellation, EntityManagerInterface $entityManager, Security $security): Response
     {
-
         $user = $security->getUser();
 
         // Vérification si l'utilisateur est propriétaire de la constellation
@@ -170,7 +165,7 @@ final class ConstellationsController extends AbstractController
         return $this->render('constellations/edit.html.twig', [
             'constellation' => $constellation,
             'form' => $form->createView(),
-            'etoiles_json' => json_encode($constellation->getEtoile() ?? []), // Vérification pour éviter les erreurs JS
+            'etoiles_json' => json_encode($constellation->getEtoile() ?? []),
             'userStars' => $userStars,
         ]);
     }

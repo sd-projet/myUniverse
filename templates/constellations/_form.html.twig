@@ -16,8 +16,6 @@
 				</div>
 				<div>
 					<div class="form-group">
-						{#{{ form_label(form.etoile, 'Ajouter des étoiles') }}#}
-						{#{{ form_widget(form.etoile, {'id': 'etoile-select' , 'multiple': 'multiple'}) }}#}
 						<p> Sélectionnez une étoile pour l'ajouter à votre constellation</p>
 						<select id="etoile-select">
 							{% for star in userStars %}
@@ -27,7 +25,6 @@
 							{% endfor %}
 						</select>
 						
-						{#{{ form_errors(form.etoile) }}#}
 						<!-- Champ caché -->
 						<div id="selected-stars"></div>
 						<input type="hidden" id="etoile-json" name="etoile_json" value='{{ etoiles_json|raw }}'>
@@ -36,7 +33,6 @@
 				</div>
 
 				<!-- Conteneur pour la vue 3D -->
-				<!--<div id="threejs-containerConstel"></div>-->
 				<div id="threejs-containerConstel" data-constellation-id="{{ constellation.id }}"></div>
 
 				<div class="form-footer">

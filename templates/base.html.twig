@@ -1,87 +1,82 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}MyUniverse{% endblock %}</title>
-    
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Cinzel:wght@700&display=swap">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Ballet&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>
+			{% block title %}MyUniverse{% endblock %}
+		</title>
 
-    <link rel="stylesheet" href="{{ asset('styles/styles.css') }}">
-    <link rel="stylesheet" href="{{ asset('styles/tables.css') }}">
-    <link rel="stylesheet" href="{{ asset('styles/threejs.css') }}">
-    <link rel="stylesheet" href="{{ asset('styles/photoProfil.css') }}">
-    <link rel="stylesheet" href="{{ asset('styles/partage.css') }}">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Cinzel:wght@700&display=swap">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Ballet&display=swap" rel="stylesheet">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
-    <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
--->
-    
-</head>
+		<link rel="stylesheet" href="{{ asset('styles/styles.css') }}">
+		<link rel="stylesheet" href="{{ asset('styles/tables.css') }}">
+		<link rel="stylesheet" href="{{ asset('styles/threejs.css') }}">
+		<link rel="stylesheet" href="{{ asset('styles/photoProfil.css') }}">
+		<link rel="stylesheet" href="{{ asset('styles/partage.css') }}">
+	</head>
 
-<body>
-{% block javascripts %}
-    <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
-    
-    <script type="importmap">
-    {
-        "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
-        }
-    }
-    </script>
-    
-   <!-- <script src="../js/starVisual.js"></script>-->
-    <script src="{{ asset('js/starVisual.js') }}"></script>
-    <script src="{{ asset('js/constelVisual.js') }}"></script>
-    <script src="{{ asset('js/choixEtoile.js') }}"></script>
+	<body>
+		{% block javascripts %}
+			<script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
-    <script>
-        feather.replace();
-    </script>
+			<script type="importmap">
+				{
+				        "imports": {
+				        "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
+				        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
+				        }
+				    }
+			</script>
 
-    <script src="{{ asset('js/photoProfil.js') }}"></script>
+			<script src="{{ asset('js/starVisual.js') }}"></script>
+			<script src="{{ asset('js/constelVisual.js') }}"></script>
+			<script src="{{ asset('js/choixEtoile.js') }}"></script>
 
+			<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+			<script src="https://unpkg.com/feather-icons"></script>
+			<script>
+				feather.replace();
+			</script>
 
-{% endblock %}
+			<script src="{{ asset('js/photoProfil.js') }}"></script>
 
-    <header class="header">
-        <!-- Navbar -->
-        <div class="navbar">
-            <div class="shooting-star"></div>
-            <div class="logo">MyUniverse</div>
-            <div class="shooting-star"></div>
-            <div class="shooting-star"></div>
-            <div class="shooting-star"></div>
-            <div class="shooting-star"></div>
-            {% if app.user %}
-                <div class="links">
-                    <!--<a href="{#{{ path('app_profile') }}#}">Profil</a>-->
-                    <a href="{{ path('app_logout') }}">Déconnexion</a>
-                </div>
-            {% else %}
-                <div class="links">
-                    <a href="{{ path('app_home') }}">Accueil</a>
-                    <a href="{{ path('app_login') }}">Connexion</a>
-                    <a href="{{ path('app_register') }}">Inscription</a>
-                </div>
-            {% endif %}
-            
-        </div>
-    </header>
+		{% endblock %}
 
-    <div class="container">
-        {% block sidebar %}{% endblock %}
-   
-        <main class="main">
-            {% block body %}{% endblock %}
-        </main>
-    </div>
+		<header
+			class="header">
+			<!-- Navbar -->
+			<div class="navbar">
+				<div class="shooting-star"></div>
+				<div class="logo">MyUniverse</div>
+				<div class="shooting-star"></div>
+				<div class="shooting-star"></div>
+				<div class="shooting-star"></div>
+				<div class="shooting-star"></div>
+				{% if app.user %}
+					<div
+						class="links">
+						<!--<a href="{#{{ path('app_profile') }}#}">Profil</a>-->
+						<a href="{{ path('app_logout') }}">Déconnexion</a>
+					</div>
+				{% else %}
+					<div class="links">
+						<a href="{{ path('app_home') }}">Accueil</a>
+						<a href="{{ path('app_login') }}">Connexion</a>
+						<a href="{{ path('app_register') }}">Inscription</a>
+					</div>
+				{% endif %}
 
-</body>
+			</div>
+		</header>
+
+		<div class="container"> {% block sidebar %}{% endblock %}
+			<main class="main"> 
+                {% block body %}{% endblock %}
+	        </main>
+		</div>
+	</body>
 </html>

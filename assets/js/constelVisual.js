@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let selectedStars = [];
     let draggingStar = null;
     let offset = new THREE.Vector3();
-    let activeConstellationId = null;  // Défini en let pour être mis à jour dynamiquement
+    let activeConstellationId = null;
     activeConstellationId = parseInt(container.getAttribute("data-constellation-id")) || null;
 
     const raycaster = new THREE.Raycaster();
@@ -103,11 +103,7 @@ document.addEventListener('DOMContentLoaded', function () {
         scene.add(line);
         lines.push(line);
 
-        //console.log("ID actif avant envoi :", activeConstellationId);
-
         saveLines(activeConstellationId);
-
-        //saveLines();
     }
 
 
@@ -169,7 +165,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function saveStarPosition(star) {
-        console.log("saveStar okkk");
         const data = {
             name: star.userData.name,  // Identifiant unique de l'étoile
             position: {
@@ -189,10 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
-                console.log("Position enregistrée star:", data);
-
-                const updatedStar = getStarByName(star.userData.name); // Recherche de l'étoile
-                console.log('icici', updatedStar);
+                const updatedStar = getStarByName(star.userData.name);
                 if (updatedStar) {
                     updatedStar.position.set(data.position.x, data.position.y, data.position.z);
                 }
@@ -220,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function () {
         })).filter(line => line.star1 && line.star2);
 
         document.getElementById("lines-json").value = JSON.stringify(linesData);
-        //console.log("Contenu du champ lines-json :", document.getElementById("lines-json").value);
 
         fetch('/constellations/update-lines', {
             method: 'POST',
@@ -231,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
         })
             .then(response => response.json())
-            .then(data => { //console.log("Lignes enregistrées :", data) 
+            .then(data => { console.log("Lignes enregistrées :", data) 
             }
 
             )
@@ -256,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
     animate();
 
     document.querySelector('form').addEventListener('submit', function () {
-        saveLines(); // Avant d'envoyer le formulaire, on sauvegarde les lignes
+        saveLines(); // sauvegarde les lignes avant de soumettre le formulaire
     });
 
 
@@ -275,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // S'assurer que le rendu est mis à jour avant la capture
+        // Vérifier si l'image a déjà été capturée
         if (!isRendered) {
             // Si ce n'est pas encore rendu, on attend
             requestAnimationFrame(() => {

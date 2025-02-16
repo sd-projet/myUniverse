@@ -23,8 +23,8 @@
                 <td>{{ star.eventDate ? star.eventDate|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ star.createdAt ? star.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>
-                    <a href="{{ path('app_stars_show', {'id': star.id}) }}">Voir</a>
                     <a href="{{ path('app_stars_edit', {'id': star.id}) }}">Modifier</a>
+                    <a href="{{ path('app_stars_delete', {'id': star.id}) }}">Supprimer</a>
                 </td>
             </tr>
         {% else %}

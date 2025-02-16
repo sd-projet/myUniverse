@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'dashboard/index.html.twig' %}
 
 {% block title %}Partage{% endblock %}
 
@@ -15,10 +15,7 @@
                 <th>User</th>
                 <td>{{ partage.user }}</td>
             </tr>
-            <tr>
-                <th>Type</th>
-                <td>{{ partage.type }}</td>
-            </tr>
+            
             <tr>
                 <th>Description</th>
                 <td>{{ partage.description }}</td>
@@ -34,9 +31,9 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_partage_index') }}">back to list</a>
+    <a href="{{ path('app_partage_index') }}" class="lienBtn">Retour</a>
 
-    <a href="{{ path('app_partage_edit', {'id': partage.id}) }}">edit</a>
+    <a href="{{ path('app_partage_edit', {'id': partage.id}) }}" >Modifier</a>
 
     {{ include('partage/_delete_form.html.twig') }}
 {% endblock %}

@@ -1,7 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    console.log("starVisual.js asset chargé");
-
     const container = document.getElementById('threejs-container');
 
     // Créer une scène, une caméra et un rendu comme d'habitude
@@ -96,13 +94,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
+    // Fonction pour ajouter une étoile existante à la scène
     document.querySelectorAll('input').forEach(input => {
         input.dispatchEvent(new Event('input'));
     });
 
+    // Fonction pour mettre à jour les propriétés de l'étoile
     document.addEventListener("starsUpdated", (event) => {
         const stars = event.detail;
-        console.log("Mise à jour des étoiles dans Three.js :", stars);
+        //console.log("Mise à jour des étoiles dans Three.js :", stars);
 
         removeAllStars();
 
@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Pour enregistrer l'image de la scène Three.js en png
     let isRendered = false;
 
     function saveImageToServer() {
@@ -118,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const canvas = container.querySelector('canvas');
         const starId = container.getAttribute('data-star-id'); // Récupérer l'ID
 
-        console.log("starId:", starId);
         if (!canvas) {
             console.error("Aucun canvas trouvé dans #threejs-container");
             return;
@@ -132,8 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Une fois l'animation effectuée, capture l'image
                 const dataURL = canvas.toDataURL('image/png');
 
-                console.log("URL de la requête:", `/stars/save-image/${starId}`);
-                console.log("Données envoyées:", { image: dataURL });
+                //console.log("URL de la requête:", `/stars/save-image/${starId}`);
+                //console.log("Données envoyées:", { image: dataURL });
 
                 fetch(`/stars/save-image/${starId}`, {
                     method: 'POST',
@@ -152,7 +152,5 @@ document.addEventListener('DOMContentLoaded', () => {
         // Après 10 secondes, on appelle la fonction pour capturer l'image
         saveImageToServer();
     }, 5000);
-
-    console.log("starVisual.js de asset fini");
 
 });

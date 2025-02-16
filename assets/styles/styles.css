@@ -6,11 +6,8 @@
 
 body {
     font-family: Arial, sans-serif;
-   /* display: flex;*/
-    /*flex-direction: column;*/
     background: linear-gradient(to bottom, #000428, #ba0584);
     color: white;
-    
 }
 
 /* Navbar */
@@ -49,7 +46,7 @@ body {
 }
 
 /* Sidebar */
-.container {
+/*.container {
     display: flex;
     height: 100vh;
 }
@@ -82,7 +79,79 @@ body {
 
 .sidebar a:hover {
     background-color: #d0098a; /* Arrière-plan au survol */
+   /* color: #f1f1f1;
+}
+*/
+
+
+/* Conteneur principal */
+.container {
+    display: flex;
+    height: auto;
+}
+
+/* Sidebar */
+.sidebar {
+    width: clamp(250px, 15vw, 250px); /* Ajustement dynamique */
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border-right: 1px solid #c6aa0069;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Liens dans la sidebar */
+.sidebar a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 13px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar a i {
+    margin-right: 15px;
+    font-size: 18px;
+}
+
+.sidebar a:hover {
+    background-color: #d0098a;
     color: #f1f1f1;
+}
+
+/* Responsive : Cacher la sidebar sur les petits écrans */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        width: 220px;
+        height: 100%;
+        padding: 20px;
+        transition: left 0.3s ease-in-out;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    /* Ajout d'un bouton pour afficher la sidebar */
+    .menu-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background-color: #d0098a;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 16px;
+        z-index: 1000;
+    }
 }
 
 .divider {
@@ -96,7 +165,7 @@ body {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    /*justify-content: center;*/
     align-items: center;
 }
 

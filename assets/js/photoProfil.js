@@ -1,10 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     let dropzone = document.querySelector('.dropzone');
-    //let inputFile = document.getElementById("profilePicture");
     let inputFile = document.querySelector('input[type="file"]');
     let profilePreview = document.getElementById("profilePreview");
 
-    // ✅ Gestion du survol de la zone de drop
+    // Gestion du survol de la zone de drop
     dropzone.addEventListener("dragover", function (e) {
         e.preventDefault();
         dropzone.classList.add("drag-over");
@@ -14,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
         dropzone.classList.remove("drag-over");
     });
 
-    // ✅ Gestion du drop d'image
+    // Gestion du drop d'image
     dropzone.addEventListener("drop", function (e) {
         e.preventDefault();
         dropzone.classList.remove("drag-over");
@@ -29,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
         reader.readAsDataURL(file);
     });
 
-    // ✅ Gestion du changement de fichier via input
+    // Gestion du changement de fichier via input
     inputFile.addEventListener("change", function () {
         let file = inputFile.files[0];
 
@@ -40,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
         reader.readAsDataURL(file);
     });
 
-    // ✅ Clique sur la dropzone ouvre l'input file
+    // Clique sur la dropzone ouvre l'input file
     dropzone.addEventListener("click", function () {
         inputFile.click();
     });
