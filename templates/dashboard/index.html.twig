@@ -1,51 +1,56 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Tableau de bord{% endblock %}
+{% block title %}Tableau de bord
+{% endblock %}
 
 {% block sidebar %}
-	<aside class="sidebar">
-		<!-- Accueil -->
-		<a href="{{ path('app_partage_all') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_partage_all' %}active{% endif %}">
-			<i class="fas fa-home"></i>
-			Accueil
-		</a>
+	{% if app.user %}
 
-		<!-- Mes Étoiles -->
-		<a href="{{ path('app_user_stars') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_user_stars' %}active{% endif %}">
-			<i class="fas fa-star"></i>
-			Mes Étoiles
-		</a>
+		<aside
+			class="sidebar">
+			<!-- Accueil -->
+			<a href="{{ path('app_partage_all') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_partage_all' %}active{% endif %}">
+				<i class="fas fa-home"></i>
+				Accueil
+			</a>
 
-		<!-- Mes Constellations -->
-		<a href="{{ path('app_user_constellations') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_user_constellations' %}active{% endif %}">
-			<i class="fas fa-gem"></i>
-			Mes Constellations
-		</a>
+			<!-- Mes Étoiles -->
+			<a href="{{ path('app_user_stars') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_user_stars' %}active{% endif %}">
+				<i class="fas fa-star"></i>
+				Mes Étoiles
+			</a>
 
-		<!-- Mes Partages -->
-		<a href="{{ path('app_partage_index') }}" class="menu-item">
-			<i class="fas fa-share-alt"></i>
-			Mes Partages
-		</a>
+			<!-- Mes Constellations -->
+			<a href="{{ path('app_user_constellations') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_user_constellations' %}active{% endif %}">
+				<i class="fas fa-gem"></i>
+				Mes Constellations
+			</a>
 
-		<!-- Divider -->
-		<div class="divider"></div>
+			<!-- Mes Partages -->
+			<a href="{{ path('app_partage_index') }}" class="menu-item">
+				<i class="fas fa-share-alt"></i>
+				Mes Partages
+			</a>
 
-		<!-- Paramètres -->
-		<a href="{{ path('app_user_settings') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_user_constellations' %}active{% endif %}">
-			<i class="fas fa-user"></i>
-			Mon profil
-		</a>
+			<!-- Divider -->
+			<div class="divider"></div>
 
-		<!-- Me déconnecter -->
-		<a href="{{ path('app_logout') }}" class="menu-item">
-			<i class="fas fa-sign-out-alt"></i>
-			Me déconnecter
-		</a>
-	</aside>
-{% endblock %}
+			<!-- Paramètres -->
+			<a href="{{ path('app_user_settings') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_user_constellations' %}active{% endif %}">
+				<i class="fas fa-user"></i>
+				Mon profil
+			</a>
+
+			<!-- Me déconnecter -->
+			<a href="{{ path('app_logout') }}" class="menu-item">
+				<i class="fas fa-sign-out-alt"></i>
+				Me déconnecter
+			</a>
+		</aside>
+	{% endif %}
+	{% endblock %}
 
 
-{% block body %}
-	<p>Communauté de MyUniverse</p>
-{% endblock %}
+	{% block body %}
+		<p>Communauté de MyUniverse</p>
+	{% endblock %}

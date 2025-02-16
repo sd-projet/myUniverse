@@ -91,3 +91,18 @@
     background-color: #ffeb3b; /* Couleur au survol */
     transform: scale(1.05); /* Zoom au survol */
 }
+
+.bouton-supprimer {
+    background: none;
+    border: none;
+    color: rgb(230, 0, 0);  /* Mets la même couleur que ton lien */
+    text-decoration: none;
+    cursor: pointer;
+    font: inherit; /* Pour garder la même police */
+    padding: 0; /* Enlever le padding par défaut du bouton */
+}
+
+.bouton-supprimer:hover {
+    color: rgb(255, 0, 0); /* Couleur du hover comme un lien */
+}
+

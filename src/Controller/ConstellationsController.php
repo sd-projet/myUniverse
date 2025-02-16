@@ -83,6 +83,8 @@ final class ConstellationsController extends AbstractController
             } catch (\Exception $e) {
                 $this->addFlash('danger', 'Une erreur est survenue lors de la création de la constellation.');
             }
+
+
         }
 
         return $this->render('constellations/new.html.twig', [
@@ -292,11 +294,15 @@ final class ConstellationsController extends AbstractController
         ]);
     }
 
-
-    #[Route('/{id}', name: 'app_constellations_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_constellations_delete', methods: ['POST', 'GET'])]
     public function delete(Request $request, Constellations $constellation, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $constellation->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($constellation);
+            $entityManager->flush();
+        }
+
+        if ($this->isCsrfTokenValid('delete' . $constellation->getId(), $request->request->get('_token'))) {
             $entityManager->remove($constellation);
             $entityManager->flush();
         }

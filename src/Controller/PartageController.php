@@ -20,9 +20,12 @@ final class PartageController extends AbstractController
     #[Route(name: 'app_partage_index', methods: ['GET'])]
     public function index(PartageRepository $partageRepository): Response
     {
+        $user = $this->getUser();
+
         return $this->render('partage/index.html.twig', [
-            'partages' => $partageRepository->findAll(),
+            'partages' => $partageRepository->findBy(['user' => $user]),
         ]);
+       
     }
 
     #[Route('/new', name: 'app_partage_new', methods: ['GET', 'POST'])]
