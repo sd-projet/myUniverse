@@ -1,10 +1,38 @@
 {% extends 'dashboard/index.html.twig' %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}Accueil
+{% endblock %}
 
 {% block body %}
-<section class="welcome-section">
-    <h1>Bienvenue sur MyUniverse</h1>
-    <p>Créez votre propre galaxie et explorez l'univers personnalisé qui vous est dédié.</p>
-</section>
+	<section class="welcome-section">
+		<h1>Bienvenue sur MyUniverse</h1>
+		<p>Créez votre propre galaxie et explorez l'univers personnalisé qui vous est dédié.</p>
+	</section>
+
+	<div class="partage-container">
+		
+
+		{% for partage in partages %}
+
+			<div class="col-5 mb-3">
+				<div class="card">
+					<div class="card-header">
+						<img src="{{ asset(partage.user.profilePicture) }}" alt="photo de profil" class="profile-pic">
+						<span class="username">{{ partage.user.name }}</span>
+					</div>
+					<img src="{{ asset(partage.imageUrl) }}" alt="Image du partage">
+					<div class="card-body d-flex justify-content-between flex-column">
+						<button class="like-btn">👍</button>
+						<button class="comment-btn">💬</button>
+					</div>
+					<div class="card-footer d-flex justify-content-between">
+						<p>{{ partage.description }}</p>
+					</div>
+				</div>
+			</div>
+		{% else %}
+			<p>Aucun partage à afficher.</p>
+		{% endfor %}
+	</div>
+
 {% endblock %}

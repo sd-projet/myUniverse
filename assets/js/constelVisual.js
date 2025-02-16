@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+
     const container = document.getElementById('threejs-containerConstel');
 
     if (!container) {
@@ -21,18 +22,43 @@ document.addEventListener('DOMContentLoaded', function () {
     light.position.set(10, 10, 10);
     scene.add(light);
 
-    // Tableau pour stocker les étoiles et les lignes
     let stars = [];
     let lines = [];
     let selectedStars = [];
-    let draggingStar = null;  // L'étoile actuellement en cours de déplacement
+    let draggingStar = null;
     let offset = new THREE.Vector3();
+    let activeConstellationId = null;  // Défini en let pour être mis à jour dynamiquement
+    activeConstellationId = parseInt(container.getAttribute("data-constellation-id")) || null;
 
-    // Raycaster pour interagir avec les objets (étoiles et lignes)
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    // Fonction pour créer une étoile en 3D
+    function recreateConstellation() {
+        const starsData = JSON.parse(document.getElementById("etoile-json").value); // Récupère les étoiles JSON
+        const linesData = JSON.parse(document.getElementById("lines-json").value); // Récupère les lignes JSON
+
+        // Créer les étoiles à partir de etoile-json
+        starsData.forEach(starData => {
+            addStarToScene(starData.name, starData.x, starData.y, starData.color);
+        });
+
+        // Recréer les lignes
+        linesData.forEach(lineData => {
+            const star1 = getStarByName(lineData.star1);
+            const star2 = getStarByName(lineData.star2);
+            if (star1 && star2) {
+                drawLineBetweenTwoStars(star1, star2);
+            }
+        });
+    }
+
+    recreateConstellation();
+
+    // Fonction pour récupérer une étoile par son nom (ou autre identifiant unique)
+    function getStarByName(name) {
+        return stars.find(star => star.userData.name === name);
+    }
+
     function createStarShape() {
         const shape = new THREE.Shape();
         const outerRadius = 1;
@@ -54,7 +80,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return shape;
     }
 
-    // Fonction pour ajouter une étoile
     function addStarToScene(name, x, y, color = 0xffff00) {
         const starShape = createStarShape();
         const extrudeSettings = { depth: 0.3, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.1, bevelSegments: 2 };
@@ -69,107 +94,213 @@ document.addEventListener('DOMContentLoaded', function () {
         stars.push(starMesh);
     }
 
-    // Fonction pour dessiner une ligne entre deux étoiles sélectionnées
     function drawLineBetweenTwoStars(star1, star2) {
         const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
         const geometry = new THREE.BufferGeometry().setFromPoints([star1.position, star2.position]);
         const line = new THREE.Line(geometry, lineMaterial);
+
+        line.userData = { star1, star2 };
         scene.add(line);
         lines.push(line);
+
+        //console.log("ID actif avant envoi :", activeConstellationId);
+
+        saveLines(activeConstellationId);
+
+        //saveLines();
     }
 
-    // Fonction de gestion des clics avec pointerdown
+
     function onPointerDown(event) {
-        // Convertir la position de la souris en coordonnées normalisées
         const rect = container.getBoundingClientRect();
         mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
         mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
 
-        // Mettre à jour le raycaster avec la position de la souris et la caméra
-        raycaster.ray.origin.setFromMatrixPosition(camera.matrixWorld); // Position de la caméra
-        raycaster.ray.direction.set(mouse.x, mouse.y, 0.5).unproject(camera).sub(raycaster.ray.origin).normalize();
-
-        // Détecter les objets intersectés (étoiles et lignes)
+        raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObjects(stars.concat(lines));
 
         if (intersects.length > 0) {
             const selectedObject = intersects[0].object;
 
-            // Si une étoile est cliquée, gérer la sélection des étoiles
             if (selectedObject instanceof THREE.Mesh && stars.includes(selectedObject)) {
-                // Si une étoile est déjà sélectionnée, relier avec la nouvelle étoile
                 if (selectedStars.length === 1) {
                     selectedStars.push(selectedObject);
                     drawLineBetweenTwoStars(selectedStars[0], selectedStars[1]);
-                    selectedStars = []; // Réinitialiser la sélection après avoir dessiné la ligne
+                    selectedStars = [];
                 } else {
-                    // Sinon, sélectionner la nouvelle étoile
                     selectedStars.push(selectedObject);
                 }
-            }
-            // Si une ligne est cliquée, supprimer la ligne
-            else if (selectedObject instanceof THREE.Line) {
-                scene.remove(selectedObject); // Supprimer la ligne de la scène
-                lines = lines.filter(line => line !== selectedObject); // Retirer la ligne du tableau
-            }
-            // Si une étoile est cliquée, démarrer le drag
-            if (selectedObject instanceof THREE.Mesh && stars.includes(selectedObject)) {
                 draggingStar = selectedObject;
-                offset.subVectors(draggingStar.position, intersects[0].point); // Calculer l'offset initial
+                offset.copy(intersects[0].point).sub(draggingStar.position);
+            }
+            else if (selectedObject instanceof THREE.Line) {
+                scene.remove(selectedObject);
+                lines = lines.filter(line => line !== selectedObject);
             }
         }
     }
 
-    // Fonction de gestion du déplacement de la souris (drag)
     function onPointerMove(event) {
         if (draggingStar) {
             const rect = container.getBoundingClientRect();
             mouse.x = ((event.clientX - rect.left) / container.clientWidth) * 2 - 1;
             mouse.y = -((event.clientY - rect.top) / container.clientHeight) * 2 + 1;
 
-            // Mettre à jour le raycaster avec la position de la souris et la caméra
-            raycaster.ray.origin.setFromMatrixPosition(camera.matrixWorld); // Position de la caméra
-            raycaster.ray.direction.set(mouse.x, mouse.y, 0.5).unproject(camera).sub(raycaster.ray.origin).normalize();
+            raycaster.setFromCamera(mouse, camera);
+            const newPosition = new THREE.Vector3(mouse.x * 5, mouse.y * 5, 0).sub(offset);
 
-            // Détecter la nouvelle position de l'étoile (on cherche une intersection avec les objets 3D, ici les étoiles)
-            const intersects = raycaster.intersectObjects(stars);
+            draggingStar.position.copy(newPosition);
 
-            if (intersects.length > 0) {
-                const newPosition = intersects[0].point.clone().sub(offset); // Appliquer l'offset pour déplacer l'étoile
-
-                // Limiter le déplacement pour éviter que l'étoile ne disparaisse
-                newPosition.x = Math.max(Math.min(newPosition.x, 5), -5);
-                newPosition.y = Math.max(Math.min(newPosition.y, 5), -5);
-                newPosition.z = Math.max(Math.min(newPosition.z, 5), -5);
-
-                draggingStar.position.copy(newPosition); // Appliquer la nouvelle position
-
-                // Mettre à jour les lignes entre les étoiles sélectionnées
-                if (selectedStars.length === 2) {
-                    // Mettre à jour la ligne entre les deux étoiles
-                    lines[lines.length - 1].geometry.setFromPoints([selectedStars[0].position, selectedStars[1].position]);
+            lines.forEach(line => {
+                if (line.userData.star1 === draggingStar || line.userData.star2 === draggingStar) {
+                    line.geometry.setFromPoints([line.userData.star1.position, line.userData.star2.position]);
                 }
+            });
+
+            // Sauvegarder la position de l'étoile après chaque mouvement (avec un délai)
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
             }
+
+            saveTimeout = setTimeout(() => {
+                saveStarPosition(draggingStar);
+            }, 500); // Sauvegarde après 500ms de pause (éviter trop de requêtes)
         }
     }
 
-    // Fonction de gestion du relâchement du clic (fin du drag)
+    function saveStarPosition(star) {
+        console.log("saveStar okkk");
+        const data = {
+            name: star.userData.name,  // Identifiant unique de l'étoile
+            position: {
+                x: star.position.x,
+                y: star.position.y,
+                z: star.position.z
+            }
+        };
+
+        // Envoi des nouvelles positions au backend
+        fetch('/constellations/update-star', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Position enregistrée star:", data);
+
+                const updatedStar = getStarByName(star.userData.name); // Recherche de l'étoile
+                console.log('icici', updatedStar);
+                if (updatedStar) {
+                    updatedStar.position.set(data.position.x, data.position.y, data.position.z);
+                }
+            })
+            .catch(error => console.error("Erreur lors de la sauvegarde :", error));
+    }
+
+
     function onPointerUp() {
+        if (draggingStar) {
+            saveStarPosition(draggingStar);
+        }
         draggingStar = null;
     }
 
-    // Animation
+    function saveLines(constellationId) {
+        if (!activeConstellationId) {
+            console.error("Aucune constellation sélectionnée !");
+            return;
+        }
+
+        const linesData = lines.map(line => ({
+            star1: line.userData?.star1?.userData?.name || null,
+            star2: line.userData?.star2?.userData?.name || null
+        })).filter(line => line.star1 && line.star2);
+
+        document.getElementById("lines-json").value = JSON.stringify(linesData);
+        //console.log("Contenu du champ lines-json :", document.getElementById("lines-json").value);
+
+        fetch('/constellations/update-lines', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                constellation_id: activeConstellationId, // On envoie bien l'ID
+                lines_etoiles: linesData
+            })
+        })
+            .then(response => response.json())
+            .then(data => { //console.log("Lignes enregistrées :", data) 
+            }
+
+            )
+            .catch(error => console.error("Erreur lors de la sauvegarde des lignes :", error));
+    }
+
+    function selectConstellation(id) {
+        activeConstellationId = id;
+        console.log("Constellation sélectionnée :", activeConstellationId);
+    }
+
+
+    container.addEventListener('pointerdown', onPointerDown);
+    container.addEventListener('pointermove', onPointerMove);
+    container.addEventListener('pointerup', onPointerUp);
+    container.addEventListener('pointerleave', onPointerUp);
+
     function animate() {
         requestAnimationFrame(animate);
         renderer.render(scene, camera);
     }
     animate();
 
-    // Ajouter les écouteurs d'événements
-    container.addEventListener('pointerdown', onPointerDown);
-    container.addEventListener('pointermove', onPointerMove);
-    container.addEventListener('pointerup', onPointerUp);
+    document.querySelector('form').addEventListener('submit', function () {
+        saveLines(); // Avant d'envoyer le formulaire, on sauvegarde les lignes
+    });
 
-    // Exposer la fonction pour ajouter des étoiles dynamiquement
+
     window.addStarToScene = addStarToScene;
+    window.selectConstellation = selectConstellation;
+
+    let isRendered = false;
+
+    function saveImageToServer() {
+        const container = document.getElementById('threejs-containerConstel');
+        const canvas = container.querySelector('canvas');
+        const constellationId = container.getAttribute('data-constellation-id'); // Récupérer l'ID
+
+        if (!canvas) {
+            console.error("Aucun canvas trouvé dans #threejs-container");
+            return;
+        }
+
+        // S'assurer que le rendu est mis à jour avant la capture
+        if (!isRendered) {
+            // Si ce n'est pas encore rendu, on attend
+            requestAnimationFrame(() => {
+                isRendered = true;
+                // Une fois l'animation effectuée, capture l'image
+                const dataURL = canvas.toDataURL('image/png');
+
+                console.log("Données envoyées:", { image: dataURL });
+
+                fetch(`/constellations/save-imageC/${constellationId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: dataURL })
+                })
+                    .then(response => response.json())
+                    .then(data => console.log('Image enregistrée avec succès:', data))
+                    .catch(error => console.error('Erreur lors de la sauvegarde:', error));
+            });
+        }
+    }
+
+    // Lancer l'animation avec un délai avant la capture
+    setTimeout(() => {
+        // Après 10 secondes, on appelle la fonction pour capturer l'image
+        saveImageToServer();
+    }, 5000);
+
 });

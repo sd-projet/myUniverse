@@ -41,6 +41,12 @@ class Constellations
     #[ORM\JoinTable(name: 'constellation_stars')]
     private Collection $stars;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $lines_etoiles = [];
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $imageUrl = null;
+
     public function __construct()
     {
         $this->stars = new ArrayCollection();
@@ -134,6 +140,50 @@ class Constellations
             $this->stars->add($star);
             //$this->stars[] = $star;
         }
+
+        return $this;
+    }
+
+    public function removeStar(Stars $star): self
+    {
+        $this->stars->removeElement($star);
+
+        return $this;
+    }
+
+    public function getStars(): Collection
+    {
+        return $this->stars;
+    }
+
+    public function setStars(Collection $stars): self
+    {
+        $this->stars = $stars;
+
+        return $this;
+    }
+
+    public function getLines(): ?array
+    {
+        //return $this->lines_etoiles;
+        return $this->lines_etoiles ?? [];
+
+    }
+
+    public function setLines(?array $linesEtoiles): self
+    {
+        $this->lines_etoiles = $linesEtoiles;
+        return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(?string $imageUrl): self
+    {
+        $this->imageUrl = $imageUrl;
 
         return $this;
     }

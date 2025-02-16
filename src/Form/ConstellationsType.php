@@ -50,7 +50,7 @@ class ConstellationsType extends AbstractType
                 'attr' => ['placeholder' => 'Décrivez votre constellation']
             ])
             
-            ->add('etoile', ChoiceType::class, [
+           /* ->add('etoile', ChoiceType::class, [
                 'label' => 'Ajouter des étoiles',
                 'choices' => $options['user_stars'], // Tableau d'objets Stars
                 'choice_label' => 'name', // Affiche le nom de chaque étoile
@@ -58,7 +58,7 @@ class ConstellationsType extends AbstractType
                 'multiple' => true, // Permet la sélection multiple
                 'expanded' => false, // Affichage sous forme de cases à cocher
                 'attr' => ['class' => 'etoile-select'],
-            ])
+            ])*/
            ;
             
             ;

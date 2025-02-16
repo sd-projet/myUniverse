@@ -51,9 +51,15 @@
            
         </div>
         <!-- Conteneur pour la vue 3D -->
-        <div id="threejs-container"></div>
+       <!-- <div id="threejs-container"></div> -->
+        <div id="threejs-container" data-star-id="{{ star.id }}"></div>
+
     {{ form_end(form) }}
     </div>
 </div>
+<script>
+    //const starId = {{ star.id }};
+   // console.log('Id star : ', starId);
+</script>
 
 {% endblock %}

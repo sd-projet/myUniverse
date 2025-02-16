@@ -5,7 +5,7 @@
 {% block sidebar %}
 	<aside class="sidebar">
 		<!-- Accueil -->
-		<a href="{{ path('app_home') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_home' %}active{% endif %}">
+		<a href="{{ path('app_partage_all') }}" class="menu-item {% if app.request.attributes.get('_route') == 'app_partage_all' %}active{% endif %}">
 			<i class="fas fa-home"></i>
 			Accueil
 		</a>
@@ -22,14 +22,8 @@
 			Mes Constellations
 		</a>
 
-		<!-- Mon Univers -->
-		<a href="#" class="menu-item">
-			<i class="fas fa-globe"></i>
-			Mon Univers
-		</a>
-
 		<!-- Mes Partages -->
-		<a href="#" class="menu-item">
+		<a href="{{ path('app_partage_index') }}" class="menu-item">
 			<i class="fas fa-share-alt"></i>
 			Mes Partages
 		</a>

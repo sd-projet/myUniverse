@@ -1,13 +1,13 @@
 {% extends 'dashboard/index.html.twig' %}
 
-{% block title %}Edit Constellations{% endblock %}
+{% block title %}Edit{% endblock %}
 
 {% block body %}
-    <h1>Edit Constellations</h1>
+    <a href="{{ path('app_user_constellations') }}" class="lienBtn">Retour</a>
 
-    {{ include('constellations/_form.html.twig', {'button_label': 'Update'}) }}
+    <h1>Modifier une constellation</h1>
 
-    <a href="{{ path('app_user_constellations') }}">back to list</a>
+    {{ include('constellations/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
 
     {{ include('constellations/_delete_form.html.twig') }}
 {% endblock %}

@@ -71,8 +71,17 @@ final class ConstellationsController extends AbstractController
                     }
                 }
 
+                $linesJson = $request->request->get('lines_json');
+                if (!empty($linesJson)) {
+                    $linesArray = json_decode($linesJson, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($linesArray)) {
+                        $constellation->setLines($linesArray);
+                    }
+                }
+
                 $entityManager->persist($constellation);
                 $entityManager->flush();
+                $entityManager->refresh($constellation);
 
                 return $this->redirectToRoute('app_user_constellations', [], Response::HTTP_SEE_OTHER);
             } catch (\Exception $e) {
@@ -83,8 +92,8 @@ final class ConstellationsController extends AbstractController
         return $this->render('constellations/new.html.twig', [
             'form' => $form->createView(),
             'etoiles_json' => json_encode($constellation->getEtoile() ?? []), // Vérification pour éviter les erreurs JS
-            'userStars' => $userStars
-
+            'userStars' => $userStars,
+            'constellation' => $constellation,
         ]);
     }
 
@@ -99,6 +108,7 @@ final class ConstellationsController extends AbstractController
     #[Route('/{id}/edit', name: 'app_constellations_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Constellations $constellation, EntityManagerInterface $entityManager, Security $security): Response
     {
+
         $user = $security->getUser();
 
         // Vérification si l'utilisateur est propriétaire de la constellation
@@ -125,6 +135,14 @@ final class ConstellationsController extends AbstractController
                     $uniqueEtoiles = [];
                     foreach ($etoileArray as $etoile) {
                         if (!isset($uniqueEtoiles[$etoile['name']])) {
+                            $star = $entityManager->getRepository(Stars::class)->findOneBy(['name' => $etoile['name']]);
+                            if ($star) {
+                                $star->setXPosition($etoile['x']);
+                                $star->setYPosition($etoile['y']);
+                                $star->setZPosition($etoile['z'] ?? 0.0);
+                                $entityManager->persist($star);
+                            }
+
                             $uniqueEtoiles[$etoile['name']] = $etoile;
                         }
                     }
@@ -134,7 +152,17 @@ final class ConstellationsController extends AbstractController
                 }
             }
 
+            $linesJson = $request->request->get('lines_json');
+            if (!empty($linesJson)) {
+                $linesArray = json_decode($linesJson, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($linesArray)) {
+                    $constellation->setLines($linesArray);
+                }
+            }
+
+            $entityManager->persist($constellation);
             $entityManager->flush();
+            $entityManager->refresh($constellation);
 
             return $this->redirectToRoute('app_user_constellations', [], Response::HTTP_SEE_OTHER);
         }
@@ -144,6 +172,128 @@ final class ConstellationsController extends AbstractController
             'form' => $form->createView(),
             'etoiles_json' => json_encode($constellation->getEtoile() ?? []), // Vérification pour éviter les erreurs JS
             'userStars' => $userStars,
+        ]);
+    }
+
+    #[Route('/update-star', name: 'app_update_star', methods: ['POST'])]
+    public function updateStarPosition(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data || !isset($data['name'], $data['position'])) {
+            return new JsonResponse(['error' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Récupérer l'étoile via son nom
+        $star = $entityManager->getRepository(Stars::class)->findOneBy(['name' => $data['name']]);
+
+        if (!$star) {
+            return new JsonResponse(['error' => 'Étoile non trouvée'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Mise à jour de la position de l'étoile
+        $star->setXPosition($data['position']['x']);
+        $star->setYPosition($data['position']['y']);
+        $star->setZPosition($data['position']['z']);
+
+        $entityManager->persist($star);
+        $entityManager->flush();
+
+        // Mettre à jour la position de l'étoile dans la constellation
+        $constellation = $entityManager->getRepository(Constellations::class)->findOneBy([
+            'etoile' => $star
+        ]);
+
+        if ($constellation) {
+            $starsInConstellation = $constellation->getEtoile();
+            foreach ($starsInConstellation as $constellationStar) {
+                if ($constellationStar->getName() === $star->getName()) {
+                    $constellationStar->setXPosition($star->getXPosition());
+                    $constellationStar->setYPosition($star->getYPosition());
+                    $constellationStar->setZPosition($star->getZPosition());
+                    $entityManager->persist($constellationStar);
+                }
+            }
+
+            $entityManager->flush();
+        }
+
+        return new JsonResponse(['message' => 'Position mise à jour avec succès'], Response::HTTP_OK);
+    }
+
+    #[Route('/update-lines', name: 'app_update_lines', methods: ['POST'])]
+    public function updateLines(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+
+        $data = json_decode($request->getContent(), true);
+
+        // Vérifier que l'ID et les lignes existent
+        if (!$data || !isset($data['constellation_id']) || !isset($data['lines_etoiles'])) {
+            return new JsonResponse(['error' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Récupérer la constellation via l'ID
+        $constellation = $entityManager->getRepository(Constellations::class)->find($data['constellation_id']);
+        if (!$constellation) {
+            return new JsonResponse(['error' => 'Constellation non trouvée'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Mettre à jour les lignes
+        $constellation->setLines($data['lines_etoiles']);
+        $entityManager->persist($constellation);
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'Lignes mises à jour avec succès'], Response::HTTP_OK);
+    }
+
+    #[Route('/get-constellation-lines/{id}', name: 'app_get_constellation_lines', methods: ['GET'])]
+    public function getConstellationLines(Constellations $constellation): JsonResponse
+    {
+        return new JsonResponse([
+            'lines' => $constellation->getLines(),
+            'etoile' => $constellation->getEtoile(),
+        ]);
+    }
+
+    #[Route('/save-imageC/{id}', name: 'save_imageC', methods: ['POST'])]
+    public function saveImageC(int $id, Request $request, EntityManagerInterface $entityManager, ConstellationsRepository $constellationsRepository): JsonResponse
+    {
+        // Récupérer les données de la requête
+        $data = json_decode($request->getContent(), true);
+
+        // Vérifier si l'image est présente dans les données
+        if (!isset($data['image'])) {
+            return new JsonResponse(['error' => 'Image manquante'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $imageData = $data['image'];  // récupère l'image depuis les données
+
+        // Traitement de l'image (par exemple, la décoder et l'enregistrer)
+        $base64 = str_replace('data:image/png;base64,', '', $imageData);
+        $decodedImage = base64_decode($base64);
+
+        if ($decodedImage === false) {
+            return new JsonResponse(['error' => 'Erreur lors du décodage de l\'image'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        // Sauvegarde de l'image dans un fichier (exemple)
+        $fileName = 'constellations_' . $id . '.png';
+        $filePath = 'uploads/images/' . $fileName;
+        
+        if (file_put_contents($filePath, $decodedImage) === false) {
+            return new JsonResponse(['error' => 'Échec de l\'enregistrement de l\'image'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        // Mettre à jour l'entité avec le chemin de l'image
+        $star = $constellationsRepository->find($id);
+        $star->setImageUrl($filePath);
+        $entityManager->flush();
+
+
+        // Retourner une réponse JSON avec le chemin de l'image
+        return new JsonResponse([
+            'message' => 'Image enregistrée avec succès',
+            'path' => $filePath
         ]);
     }
 

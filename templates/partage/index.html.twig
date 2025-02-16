@@ -1,0 +1,39 @@
+{% extends 'dashboard/index.html.twig' %}
+
+{% block title %}Partage index{% endblock %}
+
+{% block body %}
+    <h1>Partage index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>User</th>
+                <th>Description</th>
+                <th>CreatedAt</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for partage in partages %}
+            <tr>
+                <td>{{ partage.id }}</td>
+                <td>{{ partage.user }}</td>
+                <td>{{ partage.description }}</td>
+                <td>{{ partage.createdAt ? partage.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_partage_show', {'id': partage.id}) }}">show</a>
+                    <a href="{{ path('app_partage_edit', {'id': partage.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_partage_new') }}" class="lienBtn">Create new</a>
+{% endblock %}

@@ -31,23 +31,6 @@ class StarsType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
-            ->add('modelFile', FileType::class, [
-                'label' => 'Modèle 3D (GLB, OBJ, STL)',
-                'mapped' => false,
-                'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => [
-                            'model/gltf-binary',
-                            'model/gltf+json',
-                            'model/stl',
-                            'model/obj',
-                        ],
-                        'mimeTypesMessage' => 'Veuillez uploader un fichier 3D valide.',
-                    ])
-                ],
-            ])
         ;
     }
 

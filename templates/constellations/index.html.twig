@@ -21,8 +21,8 @@
                 <td>{{ constellation.description }}</td>
                 <td>{{ constellation.createdAt ? constellation.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>
-                    <a href="{{ path('app_constellations_show', {'id': constellation.id}) }}" class="liens">Voir</a>
                     <a href="{{ path('app_constellations_edit', {'id': constellation.id}) }}" class="liens">Modifier</a>
+                    <a href="{{ path('app_constellations_delete', {'id': constellation.id}) }}" class="liens">Supprimer</a>
                 </td>
             </tr>
         {% else %}

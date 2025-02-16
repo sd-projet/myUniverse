@@ -1,0 +1,114 @@
+
+/* Conteneur global pour les partages */
+.partage-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Chaque partage individuel */
+.partage {
+    margin-bottom: 20px;
+    padding: 10px;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+/* En-tête du partage : photo de profil et nom d'utilisateur */
+.partage-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.username {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* Image du partage */
+.partage-image {
+    width: 100%;
+    height: 400px; /* Ajuste la hauteur selon la taille de l'image */
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.partage-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Boutons d'action (like, commentaire) */
+.partage-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.like-btn,
+.comment-btn {
+    background-color: transparent;
+    border: none;
+    color: #007bff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.like-btn:hover,
+.comment-btn:hover {
+    color: #0056b3;
+}
+
+/* Description du partage */
+.partage-description {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.4;
+    padding-top: 10px;
+}
+
+/* Réactions comme les likes et commentaires */
+.partage-description p {
+    margin: 0;
+}
+
+.partage-description .username {
+    font-weight: bold;
+    color: #000;
+}
+
+.partage-description .description-text {
+    margin-left: 5px;
+    color: #555;
+}
+
+/* Ajout d'un effet sur l'image au survol */
+.partage-image:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+/* Responsivité : s'assurer que ça s'adapte bien aux petits écrans */
+@media (max-width: 768px) {
+    .partage-container {
+        width: 100%;
+        padding: 5px;
+    }
+
+    .partage-image {
+        height: 250px; /* Ajuste la hauteur de l'image sur les petits écrans */
+    }
+}

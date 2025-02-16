@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Partage{% endblock %}
+
+{% block body %}
+    <h1>Partage</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ partage.id }}</td>
+            </tr>
+            <tr>
+                <th>User</th>
+                <td>{{ partage.user }}</td>
+            </tr>
+            <tr>
+                <th>Type</th>
+                <td>{{ partage.type }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ partage.description }}</td>
+            </tr>
+            <tr>
+                <th>Data</th>
+                <td>{{ partage.data ? partage.data|json_encode : '' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ partage.createdAt ? partage.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_partage_index') }}">back to list</a>
+
+    <a href="{{ path('app_partage_edit', {'id': partage.id}) }}">edit</a>
+
+    {{ include('partage/_delete_form.html.twig') }}
+{% endblock %}

@@ -21,6 +21,10 @@ class Stars
     #[ORM\Column]
     private ?int $constellation_id = null;
 
+    #[ORM\ManyToOne(targetEntity: Constellations::class, inversedBy: 'stars')]
+    #[ORM\JoinColumn(name: 'constellation_id', referencedColumnName: 'id', nullable: true)]
+    private ?Constellations $constellation = null;
+
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
@@ -29,6 +33,9 @@ class Stars
 
     #[ORM\Column]
     private ?float $y_position = null;
+
+    #[ORM\Column]
+    private ?float $z_position = null;
 
     #[ORM\Column]
     private ?float $brightness = null;
@@ -54,6 +61,8 @@ class Stars
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $modelPath = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageUrl = null;
 
 
     public function __construct()
@@ -131,6 +140,18 @@ class Stars
     public function setYPosition(float $y_position): static
     {
         $this->y_position = $y_position;
+
+        return $this;
+    }
+
+    public function getZPosition(): ?float
+    {
+        return $this->z_position;
+    }
+
+    public function setZPosition(float $z_position): static
+    {
+        $this->z_position = $z_position;
 
         return $this;
     }
@@ -231,9 +252,9 @@ class Stars
     }
 
     public function __toString(): string
-{
-    return $this->name ?? 'Unnamed Star'; // Retourne le nom de l'étoile
-}
+    {
+        return $this->name ?? 'Unnamed Star'; // Retourne le nom de l'étoile
+    }
 
     public function getStarProperties(): array
     {
@@ -250,6 +271,26 @@ class Stars
         ];
     }
 
-    
-   
+    public function getConstellation(): ?Constellations
+    {
+        return $this->constellation;
+    }
+
+    public function setConstellation(?Constellations $constellation): self
+    {
+        $this->constellation = $constellation;
+        return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(?string $imageUrl): self
+    {
+        $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
 }

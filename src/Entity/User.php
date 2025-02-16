@@ -112,4 +112,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // Effacez les données sensibles, si nécessaire
     }
+
+    public function __toString(): string
+    {
+        return $this->name;
+    }
 }

@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Créer une scène, une caméra et un rendu comme d'habitude
     const scene = new THREE.Scene();
     //const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
-    const camera = new THREE.PerspectiveCamera(75, 315/ 480, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(75, 315 / 480, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(315, 480);
     //renderer.setSize(container.offsetWidth, container.offsetHeight);
@@ -68,49 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Gestion du déplacement avec la souris
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
-    let isDragging = false;
-    let selectedObject = null;
 
-    // Écouter les événements de la souris
-    container.addEventListener('mousedown', (event) => {
-        console.log('mousedown');
-        event.preventDefault();
-        // Calculer la position de la souris en coordonnées normalisées
-        pointer.x = (event.clientX / container.offsetWidth) * 2 - 1;
-        pointer.y = -(event.clientY / container.offsetHeight) * 2 + 1;
-
-        // Détecter les objets sous la souris
-        raycaster.setFromCamera(pointer, camera);
-        const intersects = raycaster.intersectObjects(scene.children);
-
-        if (intersects.length > 0) {
-            // Sélectionner le premier objet intersecté
-            selectedObject = intersects[0].object;
-            isDragging = true;
-        }
-    });
-
-    container.addEventListener('mousemove', (event) => {
-        event.preventDefault();
-        if (!isDragging || !selectedObject) return;
-
-        pointer.x = (event.clientX / container.offsetWidth) * 2 - 1;
-        pointer.y = -(event.clientY / container.offsetHeight) * 2 + 1;
-
-        raycaster.setFromCamera(pointer, camera);
-        const planeZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), -camera.position.z);
-        const intersection = new THREE.Vector3();
-        if (raycaster.ray.intersectPlane(planeZ, intersection)) {
-            selectedObject.position.x = intersection.x;
-            selectedObject.position.y = intersection.y;
-        }
-    });
-
-    container.addEventListener('mouseup', () => {
-        // Désactiver le mode de déplacement
-        isDragging = false;
-        selectedObject = null;
-    });
     // Redimensionnement dynamique
     window.addEventListener('resize', () => {
         camera.aspect = container.offsetWidth / container.offsetHeight;
@@ -135,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 starMesh.position.z = value;
             }
         });
-        
+
     });
 
     document.querySelectorAll('input').forEach(input => {
@@ -145,14 +103,55 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener("starsUpdated", (event) => {
         const stars = event.detail;
         console.log("Mise à jour des étoiles dans Three.js :", stars);
-    
+
         removeAllStars();
-    
+
         stars.forEach(star => {
             addStarToScene(star.name, star.x, star.y, star.z, star.color);
         });
     });
-    
+
+    let isRendered = false;
+
+    function saveImageToServer() {
+        const container = document.getElementById('threejs-container');
+        const canvas = container.querySelector('canvas');
+        const starId = container.getAttribute('data-star-id'); // Récupérer l'ID
+
+        console.log("starId:", starId);
+        if (!canvas) {
+            console.error("Aucun canvas trouvé dans #threejs-container");
+            return;
+        }
+
+        // S'assurer que le rendu est mis à jour avant la capture
+        if (!isRendered) {
+            // Si ce n'est pas encore rendu, on attend
+            requestAnimationFrame(() => {
+                isRendered = true;
+                // Une fois l'animation effectuée, capture l'image
+                const dataURL = canvas.toDataURL('image/png');
+
+                console.log("URL de la requête:", `/stars/save-image/${starId}`);
+                console.log("Données envoyées:", { image: dataURL });
+
+                fetch(`/stars/save-image/${starId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: dataURL })
+                })
+                    .then(response => response.json())
+                    .then(data => console.log('Image enregistrée avec succès:', data))
+                    .catch(error => console.error('Erreur lors de la sauvegarde:', error));
+            });
+        }
+    }
+
+    // Lancer l'animation avec un délai avant la capture
+    setTimeout(() => {
+        // Après 10 secondes, on appelle la fonction pour capturer l'image
+        saveImageToServer();
+    }, 5000);
 
     console.log("starVisual.js de asset fini");
 
