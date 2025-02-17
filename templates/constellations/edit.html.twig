@@ -3,11 +3,14 @@
 {% block title %}Edit{% endblock %}
 
 {% block body %}
-    <a href="{{ path('app_user_constellations') }}" class="lienBtn">Retour</a>
+    <p><a href="{{ path('app_user_constellations') }}" class="lienBtn">Retour</a></p>
 
     <h1>Modifier une constellation</h1>
 
     {{ include('constellations/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
 
+    <div class="form-footer">
     {{ include('constellations/_delete_form.html.twig') }}
+    </div>
+    
 {% endblock %}

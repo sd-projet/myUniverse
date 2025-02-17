@@ -1,45 +1,45 @@
 {% block body %}
 <div class="container">
 	<div class="main">
-		{{ form_start(form, {'attr': {'class': 'form-container'}}) }}
+		{{ form_start(form, {'attr': {'class': 'form-container2'}}) }}
 		<!-- Colonne gauche -->
         <div class="form-grid">
             <div>
-                <div class="form-group">
+                <div class="form-group2">
                     {{ form_label(form.name, 'Nom') }}
                     {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nom de votre étoile'}}) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group2">
                     {{ form_label(form.description, 'Description') }}
                     {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Décrivez l\'évènement associé à votre étoile'}}) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group2">
                     {{ form_label(form.event_date, 'Date de l\'évènement') }}
                     {{ form_widget(form.event_date, {'attr': {'class': 'form-control', 'placeholder': 'Date de l\'évènement associé à votre étoile'}}) }}
                 </div>
             </div>
             <!-- Colonne droite -->
             <div>
-                <div class="form-group">
+                <div class="form-group2">
                     {{ form_label(form.color, 'Couleur') }}
                     {{ form_widget(form.color, {'attr': {'id':'starColor','class': 'form-control', 'type': 'color', 'placeholder': 'Choisissez la couleur de votre étoile'}}) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group2">
                     {{ form_label(form.size, 'Taille') }}
                     {{ form_widget(form.size, {'attr': {'id':'starSize','class': 'form-control', 'type': 'number', 'placeholder': 'Choisissez la taille de votre étoile'}}) }}
                 </div>
 
-                <div class="form-group">
+                <div class="form-group2">
                     {{ form_label(form.brightness, 'Brillance') }}
                     {{ form_widget(form.brightness, {'attr': {'class': 'form-control', 'type': 'number', 'placeholder': 'Choisissez la brillance de votre étoile'}}) }}
                 </div>
 
-                <div class="form-group">
+                <div class="form-group2">
                     {{ form_label(form.x_position, 'Position X') }}
                     {{ form_widget(form.x_position, {'attr': {'class': 'form-control', 'type': 'number', 'placeholder': 'Choisissez la position de votre étoile en X'}}) }}
                 </div>
 
-                <div class="form-group">
+                <div class="form-group2">
                     {{ form_label(form.y_position, 'Position Y') }}
                     {{ form_widget(form.y_position, {'attr': {'class': 'form-control', 'type': 'number', 'placeholder': 'Choisissez la position de votre étoile en Y'}}) }}
                 </div>

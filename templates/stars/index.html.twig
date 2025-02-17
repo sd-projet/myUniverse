@@ -1,39 +1,44 @@
 {% extends 'dashboard/index.html.twig' %}
 
-{% block title %}Mes Stars{% endblock %}
+{% block title %}Mes Stars
+{% endblock %}
 
 {% block body %}
-    <h1>Mes Stars</h1>
+	<h1>Mes Stars</h1>
+    <br>
+	<a href="{{ path('app_stars_new') }}" class="lienBtnCreate">Créer ma star</a>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Description</th>
-                <th>Date de l'évènement</th>
-                <th>Date de création</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for star in stars %}
-            <tr>
-                <td>{{ star.name }}</td>
-                <td>{{ star.description }}</td>
-                <td>{{ star.eventDate ? star.eventDate|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ star.createdAt ? star.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_stars_edit', {'id': star.id}) }}">Modifier</a>
-                    <a href="{{ path('app_stars_delete', {'id': star.id}) }}">Supprimer</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="10">Aucune stars trouvée.</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+	<div class="post-container">
+		{% for star in stars %}
+			<div
+				class="post">
+				<!-- En-tête avec profil utilisateur -->
+				<div class="post-header">
+					<span class="username">{{ star.name  }}</span>
+				</div>
 
-    <a href="{{ path('app_stars_new') }}" class="lienBtn">Créer une star</a>
+				<!-- Image du partage -->
+				<div class="post-image">
+					<img src="{{ star.imageUrl }}" alt="Image du partage">
+				</div>
+
+				<div class="post-footer">
+					<p class="description">Description : {{ star.description }}</p>
+					<br>
+					<p>
+						Créer le :
+                        {{ star.createdAt ? star.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+
+                        </p>
+					<p>
+						<a href="{{ path('app_stars_edit', {'id': star.id}) }}">Modifier</a>
+						<a href="{{ path('app_stars_delete', {'id': star.id}) }}">Supprimer</a>
+					</p>
+				</div>
+			</div>
+		{% else %}
+			<p>Aucun partage à afficher.</p>
+		{% endfor %}
+	</div>
+
 {% endblock %}

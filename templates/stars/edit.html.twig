@@ -4,10 +4,13 @@
 
 {% block body %}
     <h1>Modifier Stars</h1>
+    <br>
+    <p><a href="{{ path('app_user_stars') }}" class="lienBtn">Retour</a></p>
 
-    {{ include('stars/_form.html.twig', {'button_label': 'Modifier'}) }}
+    {{ include('stars/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+    
+    <div class="form-footer">
+        {{ include('stars/_delete_form.html.twig') }}
+    </div>
 
-    <a href="{{ path('app_user_stars') }}" class="lienBtn">Retour</a>
-
-    {{ include('stars/_delete_form.html.twig') }}
 {% endblock %}

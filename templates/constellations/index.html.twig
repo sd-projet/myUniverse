@@ -4,41 +4,49 @@
 {% endblock %}
 
 {% block body %}
-	<h1>Mes Constellations
-	</h1>
+	<h1>Mes Constellations</h1>
 
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Nom</th>
-				<th>Description</th>
-				<th>Date de création</th>
-				<th>Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for constellation in constellations %}
-				<tr>
-					<td>{{ constellation.name }}</td>
-					<td>{{ constellation.description }}</td>
-					<td>{{ constellation.createdAt ? constellation.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-					<td>
-						<a href="{{ path('app_constellations_edit', {'id': constellation.id}) }}" class="liens">Modifier</a>
-
-						<form method="post" action="{{ path('app_constellations_delete', {'id': constellation.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette constellation ?');">
-							<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ constellation.id) }}">
-							<button class="liens bouton-supprimer">Supprimer</button>
-						</form>
-					</td>
-				</tr>
-			{% else %}
-				<tr>
-					<td colspan="7">Vous n'avez créé aucune constellation pour le moment.</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
 	<br>
-	<a href="{{ path('app_constellations_new') }}" class="lienBtn">Créer une constellation</a>
+	<a href="{{ path('app_constellations_new') }}" class="lienBtnCreate">Créer une constellation</a>
 
+	<div class="post-container">
+		{% for constellation in constellations %}
+			<div
+				class="post">
+				<!-- En-tête avec profil utilisateur -->
+				<div class="post-header">
+					<span class="username">{{ constellation.name  }}</span>
+				</div>
+
+				<!-- Image du partage -->
+				<div class="post-image">
+					<img src="{{ constellation.imageUrl }}" alt="Image du partage">
+				</div>
+
+				<div class="post-footer">
+					<p class="description">Description :
+						{{ constellation.description }}</p>
+					<br>
+					<p>
+						Créer le :{{ constellation.createdAt ? constellation.createdAt|date('Y-m-d H:i:s') : '' }}
+					</p>
+				</td>
+
+			</p>
+			<p>
+				<a href="{{ path('app_constellations_edit', {'id': constellation.id}) }}" class="liens">Modifier</a>
+
+				<form method="post" action="{{ path('app_constellations_delete', {'id': constellation.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette constellation ?');">
+					<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ constellation.id) }}">
+					<button class="liens bouton-supprimer">Supprimer</button>
+				</form>
+			</p>
+		</div>
+	</div>
+	{% else %}
+		<p>Aucun partage à afficher.</p>
+	{% endfor %}
+
+	</div>
+	
 {% endblock %}

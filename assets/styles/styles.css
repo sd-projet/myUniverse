@@ -10,9 +10,7 @@ body {
     color: white;
 }
 
-html, body {
-    height: 100%;
-}
+
 .main {
     min-height: calc(100vh - 60px); 
 }
@@ -94,36 +92,6 @@ html, body {
     color: #f1f1f1;
 }
 
-/* Responsive : Cacher la sidebar sur les petits écrans */
-@media screen and (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        left: -100%;
-        width: 220px;
-        height: 100%;
-        padding: 20px;
-        transition: left 0.3s ease-in-out;
-    }
-
-    .sidebar.active {
-        left: 0;
-    }
-
-    /* Ajout d'un bouton pour afficher la sidebar */
-    .menu-btn {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background-color: #d0098a;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        cursor: pointer;
-        font-size: 16px;
-        z-index: 1000;
-    }
-}
-
 .divider {
     border-top: 1px solid #c6aa0069;
     margin: 10px 0;
@@ -135,11 +103,23 @@ html, body {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    /*justify-content: center;*/
     align-items: center;
 }
+/** form css  */
+
 
 .form-container {
+    max-width: 400px;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    border: 1px solid #c6aa0069;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.form-container2 {
     display: flex;
     justify-content: space-between;
     background-color: rgba(0, 0, 0, 0.8);
@@ -155,16 +135,37 @@ html, body {
     gap: 30px;
 }
 
+.user-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.logout-btn {
+    color: #ff5e5e;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.logout-btn:hover {
+    text-decoration: underline;
+}
+
 .form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+
+.form-group2 {
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
 
-}
-
-.form-group label {
-    margin-bottom: 5px;
-    font-weight: bold;
 }
 
 .form-footer {
@@ -187,6 +188,116 @@ html, body {
     background-color: #0056b3;
 }
 
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group i {
+    margin-right: 5px;
+    color: #c6aa00;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 38px;
+    cursor: pointer;
+    color: #c6aa00;
+}
+
+input, textarea, select {
+    padding: 10px;
+    border: 1px solid #c6aa0069;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    /*width: 370px;  changer la taille des forms*/
+    width: 100%;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: #1c0565;
+    box-shadow: 0 0 5px #130357;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox input {
+    width: 16px;
+    height: 16px;
+}
+
+.lienBtn {
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.lienBtnCreate {
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s, transform 0.2s;
+    }
+
+.lienBtn:hover {
+    background: linear-gradient(45deg, #d0098a, #130357);
+    transform: scale(1.05);
+    color: white;
+}
+
+.liens {
+    color: #c6aa00;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.liens:hover {
+    text-decoration: underline;
+}
+
+.submit-btn {
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(45deg, #d0098a, #130357);
+    transform: scale(1.05);
+    color: white;
+}
+
+
+/** fin form css*/
+
 label {
     font-weight: bold;
 }
@@ -197,7 +308,6 @@ input, textarea, select {
     border-radius: 4px;
     background-color: rgba(0, 0, 0, 0.6);
     color: white;
-    width: 370px;
 }
 
 input[type="color"] {

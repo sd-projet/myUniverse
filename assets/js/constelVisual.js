@@ -224,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => { console.log("Lignes enregistrées :", data) 
             }
-
             )
             .catch(error => console.error("Erreur lors de la sauvegarde des lignes :", error));
     }
@@ -251,8 +250,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
+    // Ajouter addStarToScene à window
     window.addStarToScene = addStarToScene;
-    window.selectConstellation = selectConstellation;
 
     let isRendered = false;
 
@@ -292,6 +291,6 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
         // Après 10 secondes, on appelle la fonction pour capturer l'image
         saveImageToServer();
-    }, 5000);
+    }, 15000);
 
 });

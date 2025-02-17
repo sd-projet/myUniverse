@@ -53,7 +53,8 @@ class PartageType extends AbstractType
                 'placeholder' => 'Choisir une étoile (facultatif)',
                 'required' => false,
             ])
-            ->add('submit', SubmitType::class, ['label' => 'Publier']);
+            
+            ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

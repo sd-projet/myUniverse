@@ -1,19 +1,40 @@
-document.addEventListener('DOMContentLoaded', () => {
+class StarScene {
+    constructor(containerId, width = 315, height = 480) {
+        this.container = document.getElementById(containerId);
+        this.width = width;
+        this.height = height;
 
-    const container = document.getElementById('threejs-container');
+        // Créer la scène, la caméra et le renderer
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000);
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setSize(this.width, this.height);
+        this.container.appendChild(this.renderer.domElement);
 
-    // Créer une scène, une caméra et un rendu comme d'habitude
-    const scene = new THREE.Scene();
-    //const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
-    const camera = new THREE.PerspectiveCamera(75, 315 / 480, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(315, 480);
-    //renderer.setSize(container.offsetWidth, container.offsetHeight);
+        // Créer l'étoile 3D
+        this.starMesh = this.createStarMesh();
+        this.scene.add(this.starMesh);
 
-    container.appendChild(renderer.domElement);
+        // Ajouter la lumière
+        this.addLight();
 
-    // Fonction pour créer une étoile 2D
-    function createStarShape() {
+        // Positionner la caméra
+        this.camera.position.z = 15;
+
+        // Initialiser l'animation
+        this.animate();
+
+        // Gérer le redimensionnement
+        window.addEventListener('resize', () => this.onResize());
+
+        // Gérer la mise à jour des propriétés de l'étoile
+        this.handleInputUpdates();
+
+        // Gérer l'enregistrement d'image
+        this.isRendered = false;
+    }
+
+    createStarShape() {
         const shape = new THREE.Shape();
         const outerRadius = 5;
         const innerRadius = 2.5;
@@ -34,106 +55,69 @@ document.addEventListener('DOMContentLoaded', () => {
         return shape;
     }
 
-    // Créer la forme d'étoile en 2D et l'extruder en 3D
-    const starShape = createStarShape();
-    const extrudeSettings = { depth: 1, bevelEnabled: true, bevelThickness: 0.5, bevelSize: 0.5, bevelSegments: 2 };
-    const starGeometry = new THREE.ExtrudeGeometry(starShape, extrudeSettings);
-
-    // Appliquer un matériau
-    const starMaterial = new THREE.MeshStandardMaterial({ color: 0xc9bffd, metalness: 0.5, roughness: 0.3 });
-    const starMesh = new THREE.Mesh(starGeometry, starMaterial);
-
-    // Ajouter l'étoile à la scène
-    scene.add(starMesh);
-
-    // Ajouter une lumière pour que l'étoile soit visible
-    const light = new THREE.PointLight(0xffffff, 1, 100);
-    light.position.set(10, 10, 10);
-    scene.add(light);
-
-    // Position de la caméra
-    camera.position.z = 15;
-
-    // Animation
-    function animate() {
-        requestAnimationFrame(animate);
-        starMesh.rotation.y += 0.001; // Faire tourner l'étoile sur l'axe Y
-        starMesh.rotation.x += 0.001; // Faire tourner l'étoile sur l'axe X
-        renderer.render(scene, camera);
+    createStarMesh() {
+        const starShape = this.createStarShape();
+        const extrudeSettings = { depth: 1, bevelEnabled: true, bevelThickness: 0.5, bevelSize: 0.5, bevelSegments: 2 };
+        const starGeometry = new THREE.ExtrudeGeometry(starShape, extrudeSettings);
+        const starMaterial = new THREE.MeshStandardMaterial({ color: 0xc9bffd, metalness: 0.5, roughness: 0.3 });
+        return new THREE.Mesh(starGeometry, starMaterial);
     }
-    animate();
 
-    // Gestion du déplacement avec la souris
-    const raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2();
+    addLight() {
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        this.scene.add(light);
+    }
 
-    // Redimensionnement dynamique
-    window.addEventListener('resize', () => {
-        camera.aspect = container.offsetWidth / container.offsetHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(container.offsetWidth, container.offsetHeight);
-    });
+    animate() {
+        requestAnimationFrame(() => this.animate());
+        this.starMesh.rotation.y += 0.001;
+        this.starMesh.rotation.x += 0.001;
+        this.renderer.render(this.scene, this.camera);
+    }
 
-    // Mise à jour dynamique des propriétés de l'étoile
-    document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', () => {
-            const value = parseFloat(input.value) || 0;
-            if (input.id.includes('color')) {
-                starMesh.material.color.set(input.value);
-            } else if (input.id.includes('size')) {
-                const newSize = value || 1;
-                starMesh.scale.set(newSize, newSize, newSize);
-            } else if (input.id.includes('position-x')) {
-                starMesh.position.x = value;
-            } else if (input.id.includes('position-y')) {
-                starMesh.position.y = value;
-            } else if (input.id.includes('position-z')) {
-                starMesh.position.z = value;
-            }
+    onResize() {
+        this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
+    }
+
+    handleInputUpdates() {
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                const value = parseFloat(input.value) || 0;
+                if (input.id.includes('color')) {
+                    this.starMesh.material.color.set(input.value);
+                } else if (input.id.includes('size')) {
+                    const newSize = value || 1;
+                    this.starMesh.scale.set(newSize, newSize, newSize);
+                } else if (input.id.includes('position-x')) {
+                    this.starMesh.position.x = value;
+                } else if (input.id.includes('position-y')) {
+                    this.starMesh.position.y = value;
+                } else if (input.id.includes('position-z')) {
+                    this.starMesh.position.z = value;
+                }
+            });
         });
 
-    });
+        // Mise à jour initiale
+        document.querySelectorAll('input').forEach(input => input.dispatchEvent(new Event('input')));
+    }
 
-    // Fonction pour ajouter une étoile existante à la scène
-    document.querySelectorAll('input').forEach(input => {
-        input.dispatchEvent(new Event('input'));
-    });
-
-    // Fonction pour mettre à jour les propriétés de l'étoile
-    document.addEventListener("starsUpdated", (event) => {
-        const stars = event.detail;
-        //console.log("Mise à jour des étoiles dans Three.js :", stars);
-
-        removeAllStars();
-
-        stars.forEach(star => {
-            addStarToScene(star.name, star.x, star.y, star.z, star.color);
-        });
-    });
-
-    // Pour enregistrer l'image de la scène Three.js en png
-    let isRendered = false;
-
-    function saveImageToServer() {
-        const container = document.getElementById('threejs-container');
-        const canvas = container.querySelector('canvas');
-        const starId = container.getAttribute('data-star-id'); // Récupérer l'ID
-
+    saveImageToServer() {
+        const canvas = this.renderer.domElement;
+        const starId = this.container.getAttribute('data-star-id');
+        
         if (!canvas) {
             console.error("Aucun canvas trouvé dans #threejs-container");
             return;
         }
 
-        // S'assurer que le rendu est mis à jour avant la capture
-        if (!isRendered) {
-            // Si ce n'est pas encore rendu, on attend
+        if (!this.isRendered) {
             requestAnimationFrame(() => {
-                isRendered = true;
-                // Une fois l'animation effectuée, capture l'image
+                this.isRendered = true;
                 const dataURL = canvas.toDataURL('image/png');
-
-                //console.log("URL de la requête:", `/stars/save-image/${starId}`);
-                //console.log("Données envoyées:", { image: dataURL });
 
                 fetch(`/stars/save-image/${starId}`, {
                     method: 'POST',
@@ -147,10 +131,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Lancer l'animation avec un délai avant la capture
-    setTimeout(() => {
-        // Après 10 secondes, on appelle la fonction pour capturer l'image
-        saveImageToServer();
-    }, 5000);
+    startImageCaptureTimer() {
+        setTimeout(() => this.saveImageToServer(), 5000);
+    }
 
+    updateStars(stars) {
+        this.removeAllStars();
+        stars.forEach(star => {
+            this.addStarToScene(star.name, star.x, star.y, star.z, star.color);
+        });
+    }
+
+    removeAllStars() {
+        while (this.scene.children.length > 0) {
+            this.scene.remove(this.scene.children[0]);
+        }
+    }
+
+    addStarToScene(name, x, y, z, color) {
+        const star = this.createStarMesh();
+        star.position.set(x, y, z);
+        star.material.color.set(color);
+        this.scene.add(star);
+    }
+}
+
+// Création d'une instance de StarScene après le chargement du DOM
+document.addEventListener('DOMContentLoaded', () => {
+    const starScene = new StarScene('threejs-container');
+    starScene.startImageCaptureTimer();
+
+    // Mise à jour des étoiles après un événement
+    document.addEventListener("starsUpdated", (event) => {
+        const stars = event.detail;
+        starScene.updateStars(stars);
+    });
 });

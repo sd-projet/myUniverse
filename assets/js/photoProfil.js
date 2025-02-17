@@ -1,46 +1,67 @@
-document.addEventListener("DOMContentLoaded", function () {
-    let dropzone = document.querySelector('.dropzone');
-    let inputFile = document.querySelector('input[type="file"]');
-    let profilePreview = document.getElementById("profilePreview");
+class ImageUploader {
+    constructor(dropzoneSelector, inputFileSelector, profilePreviewSelector) {
+        this.dropzone = document.querySelector(dropzoneSelector);
+        this.inputFile = document.querySelector(inputFileSelector);
+        this.profilePreview = document.getElementById(profilePreviewSelector);
 
-    // Gestion du survol de la zone de drop
-    dropzone.addEventListener("dragover", function (e) {
-        e.preventDefault();
-        dropzone.classList.add("drag-over");
-    });
+        // Gestion du survol de la zone de drop
+        this.addDragAndDropEvents();
+        
+        // Gestion du changement de fichier via input
+        this.addFileInputChangeEvent();
 
-    dropzone.addEventListener("dragleave", function () {
-        dropzone.classList.remove("drag-over");
-    });
+        // Gestion du clic sur la dropzone pour ouvrir l'input file
+        this.addDropzoneClickEvent();
+    }
 
-    // Gestion du drop d'image
-    dropzone.addEventListener("drop", function (e) {
-        e.preventDefault();
-        dropzone.classList.remove("drag-over");
+    addDragAndDropEvents() {
+        // Gestion du survol de la zone de drop
+        this.dropzone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            this.dropzone.classList.add("drag-over");
+        });
 
-        let file = e.dataTransfer.files[0];
-        inputFile.files = e.dataTransfer.files;
+        this.dropzone.addEventListener("dragleave", () => {
+            this.dropzone.classList.remove("drag-over");
+        });
 
+        // Gestion du drop d'image
+        this.dropzone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            this.dropzone.classList.remove("drag-over");
+
+            let file = e.dataTransfer.files[0];
+            this.inputFile.files = e.dataTransfer.files;
+
+            this.readFile(file);
+        });
+    }
+
+    addFileInputChangeEvent() {
+        // Gestion du changement de fichier via input
+        this.inputFile.addEventListener("change", () => {
+            let file = this.inputFile.files[0];
+            this.readFile(file);
+        });
+    }
+
+    addDropzoneClickEvent() {
+        // Clique sur la dropzone ouvre l'input file
+        this.dropzone.addEventListener("click", () => {
+            this.inputFile.click();
+        });
+    }
+
+    readFile(file) {
         let reader = new FileReader();
-        reader.onload = function (e) {
-            profilePreview.src = e.target.result;
+        reader.onload = (e) => {
+            this.profilePreview.src = e.target.result;
         };
         reader.readAsDataURL(file);
-    });
+    }
+}
 
-    // Gestion du changement de fichier via input
-    inputFile.addEventListener("change", function () {
-        let file = inputFile.files[0];
-
-        let reader = new FileReader();
-        reader.onload = function (e) {
-            profilePreview.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    // Clique sur la dropzone ouvre l'input file
-    dropzone.addEventListener("click", function () {
-        inputFile.click();
-    });
+// Création d'une instance de ImageUploader après le chargement du DOM
+document.addEventListener("DOMContentLoaded", () => {
+    const imageUploader = new ImageUploader('.dropzone', 'input[type="file"]', 'profilePreview');
 });

@@ -74,9 +74,10 @@
 }
 
 /* Bouton de création */
-.lienBtn {
+.lienBtn, .submit-btn {
     display: inline-block;
     margin-top: 20px;
+    margin-bottom: 20px;
     padding: 10px 15px;
     background-color: #f4d03f;
     color: #000;
@@ -87,7 +88,23 @@
     transition: background-color 0.3s, transform 0.2s;
 }
 
-.lienBtn:hover {
+.lienBtnCreate {
+    display: inline-block;
+    width: 50%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background-color: #f4d03f;
+    color: #000;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.lienBtn:hover, .lienBtnCreate:hover {
     background-color: #ffeb3b; /* Couleur au survol */
     transform: scale(1.05); /* Zoom au survol */
 }

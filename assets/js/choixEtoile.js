@@ -1,31 +1,38 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const selectElement = document.getElementById('etoile-select');
-    const selectedStarsContainer = document.getElementById('selected-stars');
-    const etoileJsonInput = document.getElementById('etoile-json');
 
-    if (!selectElement || !selectedStarsContainer || !etoileJsonInput) {
-        console.error("Erreur : L'un des éléments est introuvable !");
-        return;
+class StarSelector {
+    constructor(selectId, containerId, jsonInputId) {
+        this.selectElement = document.getElementById(selectId);
+        this.selectedStarsContainer = document.getElementById(containerId);
+        this.etoileJsonInput = document.getElementById(jsonInputId);
+        this.selectedStars = [];
+
+        if (!this.selectElement || !this.selectedStarsContainer || !this.etoileJsonInput) {
+            console.error("Erreur : L'un des éléments est introuvable !");
+            return;
+        }
+
+        this.init();
     }
 
-    let selectedStars = [];
-
-    try {
-        let storedStars = JSON.parse(etoileJsonInput.value || '[]');
-        console.log("Étoiles récupérées :", storedStars); // Vérifier que les étoiles sont bien récupérées
-
-        storedStars.forEach(star => {
-            addStar(star.name, star.x, star.y, star.color);
-        });
-    } catch (error) {
-        console.error("Erreur lors du parsing JSON :", error);
-    }
-    
-    function updateEtoileJson() {
-        etoileJsonInput.value = JSON.stringify(selectedStars);
+    init() {
+        this.loadStoredStars();
+        this.selectElement.addEventListener('change', () => this.handleStarSelection());
     }
 
-    function createStarTag(name, x, y, color) {
+    loadStoredStars() {
+        try {
+            let storedStars = JSON.parse(this.etoileJsonInput.value || '[]');
+            storedStars.forEach(star => this.addStar(star.name, star.x, star.y, star.color));
+        } catch (error) {
+            console.error("Erreur lors du parsing JSON :", error);
+        }
+    }
+
+    updateEtoileJson() {
+        this.etoileJsonInput.value = JSON.stringify(this.selectedStars);
+    }
+
+    createStarTag(name, x, y, color) {
         if (document.querySelector(`.selected-star-tag[data-name='${name}']`)) {
             console.warn(`L'étoile "${name}" est déjà affichée.`);
             return null;
@@ -36,36 +43,42 @@ document.addEventListener('DOMContentLoaded', function () {
         tag.setAttribute('data-name', name);
         tag.innerHTML = `${name} <span class="remove-star" data-name="${name}">✖</span>`;
 
-        tag.querySelector('.remove-star').addEventListener('click', function () {
-            selectedStars = selectedStars.filter(star => star.name !== name);
-            tag.remove();
-            updateEtoileJson();
-        });
+        tag.querySelector('.remove-star').addEventListener('click', () => this.removeStar(name, tag));
 
         return tag;
     }
 
-    function addStar(name, x, y, color) {
-        if (!selectedStars.some(star => star.name === name)) {
-            selectedStars.push({ name, x, y, color });
-            updateEtoileJson();
+    addStar(name, x, y, color) {
+        if (!this.selectedStars.some(star => star.name === name)) {
+            this.selectedStars.push({ name, x, y, color });
+            this.updateEtoileJson();
 
-            const tag = createStarTag(name, x, y, color);
+            const tag = this.createStarTag(name, x, y, color);
             if (tag) {
-                selectedStarsContainer.appendChild(tag);
+                this.selectedStarsContainer.appendChild(tag);
             }
             
             window.addStarToScene(name, x, y, color); // Ajoute l'étoile dans la scène Three.js
         }
     }
 
-    function handleStarSelection() {
-        const selectedOption = selectElement.options[selectElement.selectedIndex];
-        if (selectedOption && selectedOption.value) {
-            const starData = JSON.parse(selectedOption.value);
-            addStar(starData.name, starData.x, starData.y, starData.color);
-        }
+    removeStar(name, tag) {
+        this.selectedStars = this.selectedStars.filter(star => star.name !== name);
+        tag.remove();
+        this.updateEtoileJson();
     }
 
-    selectElement.addEventListener('change', handleStarSelection);
+    handleStarSelection() {
+        const selectedOption = this.selectElement.options[this.selectElement.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+            const starData = JSON.parse(selectedOption.value);
+            this.addStar(starData.name, starData.x, starData.y, starData.color);
+        }
+    }
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    new StarSelector('etoile-select', 'selected-stars', 'etoile-json');
 });
+
