@@ -13,7 +13,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN curl -sS https://get.symfony.com/cli/installer | bash \
     && mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
 
-# Définir un utilisateur non root pour éviter les erreurs Composer
+# Définir un utilisateur non root
 RUN useradd -m symfony
 WORKDIR /home/symfony
 COPY . .
@@ -31,8 +31,10 @@ RUN composer run-script auto-scripts || true
 WORKDIR /home/symfony
 RUN ln -s /home/symfony/public /var/www/html
 
-# Corriger le problème de "ServerName" Apache
+# Correction: Exécuter cette commande en root puis revenir à symfony
+USER root
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+USER symfony
 
 # Exposer le port 10000 pour Render
 EXPOSE 10000
