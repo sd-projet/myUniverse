@@ -25,8 +25,11 @@ class HomeController extends AbstractController
     }
 
     #[Route('/dashboard', name: 'app_user_dashboard')]
-    public function dashboard(): Response
+    public function dashboard(PartageRepository $partageRepository): Response
     {
-        return $this->render('dashboard/index.html.twig');
+        //return $this->render('dashboard/index.html.twig');
+        return $this->render('home/index.html.twig', [
+            'partages' => $partageRepository->findAll(),
+        ]);
     }
 }

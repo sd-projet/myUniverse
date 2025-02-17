@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: myUniverse
+    runtime: docker
+    repo: https://github.com/sd-projet/myUniverse.git
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+    disk:
+      name: cache
+      mountPath: /var/www/html/var/cache
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+    startCommand: |
+      apache2-foreground
