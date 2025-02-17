@@ -17,6 +17,12 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash \
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /home/symfony/public|' /etc/apache2/sites-available/000-default.conf
 
+
+# Assurez-vous que les dossiers existent avant de changer les permissions
+RUN mkdir -p /home/symfony/var /home/symfony/public \
+    && chown -R www-data:www-data /home/symfony/var /home/symfony/public
+
+    
 # Définir un utilisateur non root et préparer les fichiers
 RUN useradd -m symfony
 WORKDIR /home/symfony
