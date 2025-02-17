@@ -22,7 +22,7 @@ RUN composer install --no-interaction --optimize-autoloader
 RUN chown -R www-data:www-data /var/www/html/var /var/www/html/public
 
 # Exposer le port 80 pour Apache
-EXPOSE 80
+EXPOSE 10000 
 
 # Démarrer Apache
 CMD ["apache2-foreground"]
