@@ -265,7 +265,7 @@ final class ConstellationsController extends AbstractController
 
         $imageData = $data['image'];  // récupère l'image depuis les données
 
-        // Traitement de l'image (par exemple, la décoder et l'enregistrer)
+        // Traitement de l'image (décoder et l'enregistrer)
         $base64 = str_replace('data:image/png;base64,', '', $imageData);
         $decodedImage = base64_decode($base64);
 
@@ -273,7 +273,7 @@ final class ConstellationsController extends AbstractController
             return new JsonResponse(['error' => 'Erreur lors du décodage de l\'image'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        // Sauvegarde de l'image dans un fichier (exemple)
+        // Sauvegarde de l'image dans un fichier
         $fileName = 'constellations_' . $id . '.png';
         $filePath = 'uploads/images/' . $fileName;
         

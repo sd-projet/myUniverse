@@ -1,3 +1,5 @@
+// js pour gérer le drag & drop
+
 class ImageUploader {
     constructor(dropzoneSelector, inputFileSelector, profilePreviewSelector) {
         this.dropzone = document.querySelector(dropzoneSelector);
