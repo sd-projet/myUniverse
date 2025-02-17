@@ -4,6 +4,7 @@ FROM php:8.2-apache
 # Installer les extensions PHP et dépendances système
 RUN apt-get update && apt-get install -y \
     libzip-dev unzip git curl libpq-dev \
+    libcurl4-openssl-dev libssl-dev \
     && docker-php-ext-install pdo pdo_mysql pdo_pgsql zip
 
 # Installer Composer
@@ -17,32 +18,29 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash \
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /home/symfony/public|' /etc/apache2/sites-available/000-default.conf
 
-
-# Assurez-vous que les dossiers existent avant de changer les permissions
-RUN mkdir -p /home/symfony/var /home/symfony/public \
-    && chown -R www-data:www-data /home/symfony/var /home/symfony/public
-
-    
 # Définir un utilisateur non root et préparer les fichiers
 RUN useradd -m symfony
 WORKDIR /home/symfony
 COPY . . 
 
-# Vérifier si www-data existe (debug)
-RUN id www-data || echo "L'utilisateur www-data n'existe pas !"
-
-# Changer les permissions AVANT de passer à l'utilisateur symfony
-RUN chown -R www-data:www-data /home/symfony/var /home/symfony/public
+# Créer les dossiers nécessaires avant de changer les permissions
+RUN mkdir -p /home/symfony/var /home/symfony/public \
+    && chown -R www-data:www-data /home/symfony/var /home/symfony/public
 
 # Passer à l'utilisateur symfony
 USER symfony
 
+# S'assurer que les permissions sont correctes
+RUN chown -R symfony:symfony /home/symfony
+
 # Copier le fichier .env s'il n'existe pas
 RUN [ ! -f ".env" ] && cp .env.example .env || true
 
-# Installer les dépendances Symfony
-RUN composer install --no-interaction --optimize-autoloader --no-scripts
-RUN composer run-script auto-scripts || true
+# Nettoyer le cache Composer pour éviter des problèmes
+RUN composer clear-cache
+
+# Installer les dépendances Symfony avec des logs détaillés
+RUN composer install -vvv --no-interaction --optimize-autoloader --no-scripts
 
 # Exposer le port 10000 pour Render
 EXPOSE 10000
