@@ -1,7 +1,7 @@
 # Utiliser PHP 8.2 avec Apache
 FROM php:8.2-apache
 
-# Installer les extensions PHP
+# Installer les extensions PHP et dépendances système
 RUN apt-get update && apt-get install -y \
     libzip-dev unzip git curl libpq-dev \
     && docker-php-ext-install pdo pdo_mysql pdo_pgsql zip
@@ -13,31 +13,31 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN curl -sS https://get.symfony.com/cli/installer | bash \
     && mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
 
+# Configurer Apache pour pointer sur "public/"
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /home/symfony/public|' /etc/apache2/sites-available/000-default.conf
+
 # Définir un utilisateur non root
 RUN useradd -m symfony
 WORKDIR /home/symfony
-COPY . .
+COPY . . 
 RUN chown -R symfony:symfony /home/symfony
+
+# Passer temporairement en root pour configurer Apache et installer les dépendances
+USER root
+RUN a2enmod rewrite  # Active le module Apache pour les URLs symfony
+RUN chown -R www-data:www-data /home/symfony/var /home/symfony/public
 USER symfony
 
 # Copier le fichier .env s'il n'existe pas
-RUN cp .env.example .env || touch .env
+RUN [ ! -f ".env" ] && cp .env.example .env || true
 
 # Installer les dépendances Symfony
 RUN composer install --no-interaction --optimize-autoloader --no-scripts
 RUN composer run-script auto-scripts || true
 
-# Configurer Apache pour pointer sur "public/"
-WORKDIR /home/symfony
-RUN ln -s /home/symfony/public /var/www/html
-
-# Correction: Exécuter cette commande en root puis revenir à symfony
-USER root
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-USER symfony
-
 # Exposer le port 10000 pour Render
 EXPOSE 10000
 
-# Lancer Apache
+# Lancer Apache sur le port 10000
 CMD ["apache2-foreground"]
