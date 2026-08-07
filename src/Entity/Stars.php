@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\StarsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: StarsRepository::class)]
 class Stars
@@ -18,12 +20,8 @@ class Stars
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column]
-    private ?int $constellation_id = null;
-
-    #[ORM\ManyToOne(targetEntity: Constellations::class, inversedBy: 'stars')]
-    #[ORM\JoinColumn(name: 'constellation_id', referencedColumnName: 'id', nullable: true)]
-    private ?Constellations $constellation = null;
+    #[ORM\ManyToMany(targetEntity: Constellations::class, mappedBy: 'stars')]
+    private Collection $constellations;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -69,6 +67,8 @@ class Stars
     {
         $this->created_at = new \DateTimeImmutable();
         $this->updated_at = new \DateTimeImmutable();
+        $this->constellations = new ArrayCollection();
+
     }
 
 
@@ -93,19 +93,6 @@ class Stars
     public function getUser(): ?User
     {
         return $this->user;
-    }
-
-
-    public function getConstellationId(): ?int
-    {
-        return $this->constellation_id;
-    }
-
-    public function setConstellationId(int $constellation_id): static
-    {
-        $this->constellation_id = $constellation_id;
-
-        return $this;
     }
 
     public function getName(): ?string
@@ -271,14 +258,23 @@ class Stars
         ];
     }
 
-    public function getConstellation(): ?Constellations
+    public function getConstellations(): Collection
     {
-        return $this->constellation;
+        return $this->constellations;
     }
 
-    public function setConstellation(?Constellations $constellation): self
+    public function setConstellation(?Collection $constellation): self
     {
-        $this->constellation = $constellation;
+        $this->constellations = $constellation;
+        return $this;
+    }
+
+    public function addConstellation(Constellations $constellation): self
+    {
+        if (!$this->constellations->contains($constellation)) {
+            $this->constellations->add($constellation);
+        }
+
         return $this;
     }
 

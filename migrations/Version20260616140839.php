@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20241230165755 extends AbstractMigration
+final class Version20260616140839 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -35,7 +35,6 @@ final class Version20241230165755 extends AbstractMigration
         $this->addSql('ALTER TABLE partage ADD CONSTRAINT FK_8B929E6EAFB95E03 FOREIGN KEY (constellation_id) REFERENCES constellations (id)');
         $this->addSql('ALTER TABLE stars ADD CONSTRAINT FK_11DC02CA76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
     }
-
 
     public function down(Schema $schema): void
     {

@@ -1,44 +1,48 @@
 // classe pour afficher les etoiles pour créer des constellations
 
 class ThreeJSConstellation {
-    constructor(containerId) {
-        this.container = document.getElementById(containerId);
-        if (!this.container) {
-            console.error("Erreur : Conteneur Three.js introuvable !");
-            return;
+    //if (containerId){
+        constructor(containerId) {
+            if (containerId) {
+                this.container = document.getElementById(containerId);
+                if (!this.container) {
+                    console.error("Erreur : Conteneur Three.js introuvable !");
+                    return;
+                }
+
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, this.container.clientWidth / this.container.clientHeight, 0.1, 1000);
+                this.camera.position.z = 10;
+
+                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+                this.container.appendChild(this.renderer.domElement);
+
+                this.light = new THREE.PointLight(0xffffff, 1.2, 100);
+                this.light.position.set(10, 10, 10);
+                this.scene.add(this.light);
+
+                this.stars = [];
+                this.lines = [];
+                this.selectedStars = [];
+                this.draggingStar = null;
+                this.offset = new THREE.Vector3();
+                this.activeConstellationId = parseInt(this.container.getAttribute("data-constellation-id")) || null;
+                this.saveTimeout = null;
+                this.isRendered = false;
+
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+
+                this.initEventListeners();
+                this.recreateConstellation();
+                this.animate();
+
+                // Lancer la capture d'image après 15 secondes
+                setTimeout(this.saveImageToServer.bind(this), 15000);
+            }
         }
-
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, this.container.clientWidth / this.container.clientHeight, 0.1, 1000);
-        this.camera.position.z = 10;
-
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-        this.container.appendChild(this.renderer.domElement);
-
-        this.light = new THREE.PointLight(0xffffff, 1.2, 100);
-        this.light.position.set(10, 10, 10);
-        this.scene.add(this.light);
-
-        this.stars = [];
-        this.lines = [];
-        this.selectedStars = [];
-        this.draggingStar = null;
-        this.offset = new THREE.Vector3();
-        this.activeConstellationId = parseInt(this.container.getAttribute("data-constellation-id")) || null;
-        this.saveTimeout = null;
-        this.isRendered = false;
-
-        this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector2();
-
-        this.initEventListeners();
-        this.recreateConstellation();
-        this.animate();
-
-        // Lancer la capture d'image après 15 secondes
-        setTimeout(this.saveImageToServer.bind(this), 15000);
-    }
+   // }
 
     // recrer la constellation si elle existe
     recreateConstellation() {

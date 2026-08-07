@@ -3,6 +3,12 @@ class StarScene {
     // Constructeur qui prend en paramètre l'ID du conteneur, la largeur et la hauteur de la scène
     constructor(containerId, width = 315, height = 480) {
         this.container = document.getElementById(containerId); // Le conteneur HTML où la scène sera rendue
+        
+        if (!this.container) {
+                    console.error("Erreur : Conteneur Three.js introuvable !");
+                    return;
+                }
+        
         this.width = width;  // Largeur de la scène
         this.height = height; // Hauteur de la scène
 

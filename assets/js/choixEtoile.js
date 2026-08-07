@@ -8,8 +8,23 @@ class StarSelector {
         this.selectedStars = []; // Tableau pour stocker les étoiles sélectionnées
 
         // Vérifier si tous les éléments nécessaires existent sur la page
-        if (!this.selectElement || !this.selectedStarsContainer || !this.etoileJsonInput) {
+        /*if (!this.selectElement || !this.selectedStarsContainer || !this.etoileJsonInput) {
             console.error("Erreur : L'un des éléments est introuvable !");
+            return;
+        }*/
+
+        if (!this.selectElement) {
+            console.error("Erreur : selectElement est introuvable !");
+            return;
+        }
+
+        if (!this.selectedStarsContainer) {
+            console.error("Erreur : selected star container est introuvable !");
+            return;
+        }
+
+        if (!this.etoileJsonInput) {
+            console.error("Erreur : etoileJsonInput est introuvable !");
             return;
         }
 

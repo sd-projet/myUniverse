@@ -21,6 +21,7 @@ class StarsType extends AbstractType
             ])
             ->add('x_position')
             ->add('y_position')
+            ->add('z_position')
             ->add('brightness')
             ->add('color', ColorType::class, [
                 'label' => 'Couleur de l\'étoile',

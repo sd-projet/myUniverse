@@ -36,6 +36,7 @@ class Constellations
     #[ORM\Column(type: 'json')]
     private ?array $etoile = [];
 
+    // #[ORM\ManyToMany(targetEntity: Stars::class, inversedBy: 'constellations')]
     #[ORM\ManyToMany(targetEntity: Stars::class, inversedBy: 'constellations')]
     #[ORM\JoinTable(name: 'constellation_stars')]
     private Collection $stars;
