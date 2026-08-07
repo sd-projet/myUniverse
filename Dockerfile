@@ -40,7 +40,13 @@ COPY docker-entrypoint.sh /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Change les permissions
+
+# Création des dossiers nécessaires Symfony
+RUN mkdir -p /var/www/html/var/cache \
+    /var/www/html/var/log \
+    /var/www/html/public
+
+# Permissions
 RUN chown -R www-data:www-data /var/www/html/var /var/www/html/public
 
 # Expose le port 80
