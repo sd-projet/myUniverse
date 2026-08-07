@@ -2,9 +2,16 @@ FROM php:8.2-apache
 
 # Installe les extensions nécessaires
 RUN apt-get update && apt-get install -y \
-    libpng-dev libjpeg-dev libfreetype6-dev zip unzip git \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    git \
+    libicu-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql
+    && docker-php-ext-install gd pdo pdo_mysql intl zip
 
 # Active mod_rewrite pour Apache (nécessaire pour Symfony)
 RUN a2enmod rewrite
@@ -22,7 +29,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer global config --no-plugins allow-plugins.symfony/flex true
 
 # Installe les dépendances Symfony
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --ignore-platform-reqs \
+    --no-scripts
+
+# Ajout du script de démarrage
+COPY docker-entrypoint.sh /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Change les permissions
 RUN chown -R www-data:www-data /var/www/html/var /var/www/html/public
@@ -31,4 +47,4 @@ RUN chown -R www-data:www-data /var/www/html/var /var/www/html/public
 EXPOSE 80
 
 # Commande de démarrage
-CMD ["apache2-foreground"]
+CMD ["docker-entrypoint.sh"]
