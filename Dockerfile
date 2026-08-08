@@ -13,14 +13,24 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql intl zip
 
-# Apache
+
+# Active mod_rewrite pour Symfony (Apache)
 RUN a2enmod rewrite
+
+# Autorise Symfony à utiliser public/.htaccess
+RUN printf '%s\n' \
+    '<Directory /var/www/html/public>' \
+    '    AllowOverride All' \
+    '    Require all granted' \
+    '</Directory>' \
+    > /etc/apache2/conf-available/symfony.conf
+
+RUN a2enconf symfony
+
 
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' \
     /etc/apache2/sites-available/000-default.conf
 
-RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' \
-    /etc/apache2/apache2.conf
 
 # Copie du projet
 COPY . /var/www/html
