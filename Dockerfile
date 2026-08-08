@@ -38,8 +38,10 @@ RUN composer global config --no-plugins allow-plugins.symfony/flex true
 RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
     --no-dev \
     --optimize-autoloader \
-    --ignore-platform-reqs \
-    --no-scripts
+    --ignore-platform-reqs
+
+# Compile les assets Symfony
+RUN php bin/console asset-map:compile --env=prod
 
 # Ajout du script de démarrage
 COPY docker-entrypoint.sh /usr/local/bin/
