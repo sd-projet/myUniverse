@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-mkdir -p /var/www/html/var/cache
-mkdir -p /var/www/html/var/log
-
 php bin/console cache:clear --env=prod
 
 chown -R www-data:www-data /var/www/html/var

@@ -13,9 +13,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql intl zip
 
-# Active mod_rewrite pour Apache (nécessaire pour Symfony)
+# Active mod_rewrite pour Apache
 RUN a2enmod rewrite
 
+# Configure Apache pour Symfony
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' \
     /etc/apache2/sites-available/000-default.conf
 
@@ -34,20 +35,12 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Autorise les plugins Symfony en tant que root
 RUN composer global config --no-plugins allow-plugins.symfony/flex true
 
-# Installe les dépendances Symfony
+# Installe les dépendances Symfony sans exécuter les auto-scripts
 RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
     --no-dev \
     --optimize-autoloader \
-    --ignore-platform-reqs
-
-# Compile les assets Symfony
-RUN php bin/console asset-map:compile --env=prod
-
-# Ajout du script de démarrage
-COPY docker-entrypoint.sh /usr/local/bin/
-
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
+    --ignore-platform-reqs \
+    --no-scripts
 
 # Création des dossiers nécessaires Symfony
 RUN mkdir -p /var/www/html/var/cache \
@@ -57,8 +50,19 @@ RUN mkdir -p /var/www/html/var/cache \
 # Permissions
 RUN chown -R www-data:www-data /var/www/html/var /var/www/html/public
 
-# Expose le port 80
-EXPOSE 80
+# Installation des dépendances frontend/importmap
+RUN APP_ENV=prod php bin/console importmap:install
+
+# Compile les assets Symfony
+RUN APP_ENV=prod php bin/console asset-map:compile
+
+# Ajout du script de démarrage
+COPY docker-entrypoint.sh /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Port Render
+EXPOSE 10000
 
 ENV PORT=10000
 
