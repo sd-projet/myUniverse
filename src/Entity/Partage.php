@@ -32,7 +32,7 @@ class Partage
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageUrl = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'json')]
     private array $data = [];
 
     #[ORM\Column]
