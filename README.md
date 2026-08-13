@@ -372,17 +372,3 @@ Conception, développement et déploiement d'applications web sur mesure.
 📄 Licence
 
 Projet personnel.
-
-
-### Petit conseil pour le rendre encore plus vendeur
-
-Je mettrais **une capture d'écran ou un GIF de ton application tout en haut du README**, juste sous le titre. Pour un recruteur ou un prospect, c'est beaucoup plus efficace que de commencer directement par de la documentation technique.
-
-Par exemple :
-
-```md
-# 🌌 MyUniverse
-
-> Create your universe. Build your stars. Connect your constellations.
-
-![MyUniverse](docs/images/myuniverse-preview.png)
