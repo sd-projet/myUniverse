@@ -88,36 +88,30 @@ L'objectif est de transformer MyUniverse en une petite plateforme communautaire 
 La page d'accueil est pensée comme un fil d'actualité inspiré des réseaux sociaux.
 Les utilisateurs peuvent ainsi découvrir les créations publiées par les autres membres.
 
+---
 
 # 🛠️ Stack technique
 
 ## Backend
 
-PHP
-Symfony
-Doctrine ORM
-Symfony Security
-Symfony Forms
-Symfony Routing
-Symfony Controllers
+- PHP
+- Symfony
+- Doctrine ORM
 
 ## Base de données
 
-PostgreSQL
-Doctrine ORM
-Neon
+- PostgreSQL
+- Doctrine ORM
+- Neon
 
 ## Frontend
 
-Twig
-HTML5
-CSS3
-JavaScript
-Three.js
-API / communication
-Fetch API
-JSON
-Routes Symfony
+- Twig
+- HTML | CSS
+- JavaScript
+- Three.js
+- Fetch API
+- JSON
 
 
 ## ☁️ Déploiement
@@ -126,6 +120,7 @@ L'application est déployée sur **Render**.
 
 La base de données utilise PostgreSQL.
 
+---
 
 # 🎯 Objectifs techniques du projet
 
