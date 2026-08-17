@@ -35,8 +35,6 @@ L'objectif est de proposer une expérience à la fois **créative, interactive e
 
 Les utilisateurs peuvent créer leurs propres étoiles et définir différentes propriétés.
 
----
-
 Les étoiles sont représentées dans une scène 3D grâce à **Three.js**.
 
 La visualisation permet notamment :
@@ -48,7 +46,6 @@ La visualisation permet notamment :
 
 La forme des étoiles est générée avec `THREE.Shape` et `THREE.ExtrudeGeometry`.
 
----
 
 ## 🌌 Création de constellations
 
@@ -65,7 +62,6 @@ L'utilisateur peut :
 
 Les relations entre les étoiles sont stockées afin de pouvoir reconstruire la constellation ultérieurement.
 
----
 
 
 ## 📤 Partage des créations
