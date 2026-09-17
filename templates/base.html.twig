@@ -36,7 +36,7 @@
 				        }
 				    }
 			</script>
-
+			<script src="{{ asset('js/menu.js') }}"></script>
 			<script src="{{ asset('js/starVisual.js') }}"></script>
 			<script src="{{ asset('js/constelVisual.js') }}"></script>
 			<script src="{{ asset('js/choixEtoile.js') }}"></script>
@@ -59,19 +59,26 @@
 		<header
 			class="header">
 			<!-- Navbar -->
+		
 			<div class="navbar">
 				<div class="shooting-star"></div>
+
 				<div class="logo">MyUniverse</div>
+
 				<div class="shooting-star"></div>
 				<div class="shooting-star"></div>
 				<div class="shooting-star"></div>
 				<div class="shooting-star"></div>
+
 				{% if app.user %}
-					<div
-						class="links">
-						<!--<a href="{#{{ path('app_profile') }}#}">Profil</a>-->
+					<div class="links navbar-logout">
 						<a href="{{ path('app_logout') }}">Déconnexion</a>
 					</div>
+
+					<!-- Bouton menu mobile -->
+					<button class="menu-toggle" id="menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
+						<i class="fas fa-bars"></i>
+					</button>
 				{% else %}
 					<div class="links">
 						<a href="{{ path('app_partage_all') }}">Accueil</a>
@@ -79,8 +86,8 @@
 						<a href="{{ path('app_register') }}">Inscription</a>
 					</div>
 				{% endif %}
-
 			</div>
+
 		</header>
 
 		<div class="container"> {% block sidebar %}{% endblock %}

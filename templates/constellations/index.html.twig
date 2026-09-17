@@ -1,52 +1,93 @@
 {% extends 'dashboard/index.html.twig' %}
 
-{% block title %}Constellations
-{% endblock %}
+{% block title %}Mes Constellations{% endblock %}
 
 {% block body %}
-	<h1>Mes Constellations</h1>
 
-	<br>
-	<a href="{{ path('app_constellations_new') }}" class="lienBtnCreate">Créer une constellation</a>
+    <div class="page-header">
+        <h1>Mes Constellations</h1>
 
-	<div class="post-container">
-		{% for constellation in constellations %}
-			<div
-				class="post">
-				<!-- En-tête avec profil utilisateur -->
-				<div class="post-header">
-					<span class="username">{{ constellation.name  }}</span>
-				</div>
+        <a href="{{ path('app_constellations_new') }}"
+           class="lienBtnCreate create-button">
+            <i class="fas fa-plus"></i>
+            Créer une constellation
+        </a>
+    </div>
 
-				<!-- Image du partage -->
-				<div class="post-image">
-					<img src="{{ constellation.imageUrl }}" alt="Image du partage">
-				</div>
+    <div class="post-container">
 
-				<div class="post-footer">
-					<p class="description">Description :
-						{{ constellation.description }}</p>
-					<br>
-					<p>
-						Créer le :{{ constellation.createdAt ? constellation.createdAt|date('Y-m-d H:i:s') : '' }}
-					</p>
-				</td>
+        {% for constellation in constellations %}
 
-			</p>
-			<p>
-				<a href="{{ path('app_constellations_edit', {'id': constellation.id}) }}" class="liens">Modifier</a>
+            <article class="star-card">
 
-				<form method="post" action="{{ path('app_constellations_delete', {'id': constellation.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette constellation ?');">
-					<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ constellation.id) }}">
-					<button class="liens bouton-supprimer">Supprimer</button>
-				</form>
-			</p>
-		</div>
-	</div>
-	{% else %}
-		<p>Aucun partage à afficher.</p>
-	{% endfor %}
+                <div class="star-card-header">
+                    <h2>{{ constellation.name }}</h2>
+                </div>
 
-	</div>
-	
+                <div class="star-card-image">
+                    <img src="{{ constellation.imageUrl }}"
+                         alt="Constellation {{ constellation.name }}">
+                </div>
+
+                <div class="star-card-content">
+
+                    {% if constellation.description %}
+                        <p class="star-description">
+                            {{ constellation.description }}
+                        </p>
+                    {% endif %}
+
+                    <p class="star-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        Créée le
+                        {{ constellation.createdAt ? constellation.createdAt|date('d/m/Y à H:i') : '' }}
+                    </p>
+
+                </div>
+
+                <div class="star-card-actions">
+
+                    <a href="{{ path('app_constellations_edit', {'id': constellation.id}) }}"
+                       class="edit-action">
+                        <i class="fas fa-pen"></i>
+                        Modifier
+                    </a>
+
+                    <form method="post"
+                          action="{{ path('app_constellations_delete', {'id': constellation.id}) }}"
+                          onsubmit="return confirm('Êtes-vous sûre de vouloir supprimer cette constellation ?');">
+
+                        <input type="hidden"
+                               name="_token"
+                               value="{{ csrf_token('delete' ~ constellation.id) }}">
+
+                        <button type="submit" class="delete-button">
+                            <i class="fas fa-trash-alt"></i>
+                            Supprimer
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </article>
+
+        {% else %}
+
+            <div class="empty-state">
+                <i class="fas fa-star"></i>
+
+                <p>Vous n'avez encore aucune constellation.</p>
+
+                <a href="{{ path('app_constellations_new') }}"
+                   class="lienBtnCreate">
+                    <i class="fas fa-plus"></i>
+                    Créer ma première constellation
+                </a>
+            </div>
+
+        {% endfor %}
+
+    </div>
+
 {% endblock %}

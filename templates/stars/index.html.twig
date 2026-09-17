@@ -4,41 +4,64 @@
 {% endblock %}
 
 {% block body %}
-	<h1>Mes Stars</h1>
-    <br>
-	<a href="{{ path('app_stars_new') }}" class="lienBtnCreate">Créer ma star</a>
+    <div class="page-header">
+        <h1>Mes Stars</h1>
 
-	<div class="post-container">
+        <a href="{{ path('app_stars_new') }}" class="lienBtnCreate create-button">
+            <i class="fas fa-plus"></i>
+            Créer ma star
+        </a>
+    </div>
+
+    <div class="post-container">
 		{% for star in stars %}
-			<div
-				class="post">
-				<!-- En-tête avec profil utilisateur -->
-				<div class="post-header">
-					<span class="username">{{ star.name  }}</span>
+			<article class="star-card">
+
+				<div class="star-card-header">
+					<h2>{{ star.name }}</h2>
 				</div>
 
-				<!-- Image du partage -->
-				<div class="post-image">
-					<img src="{{ star.imageUrl }}" alt="Image du partage">
+				<div class="star-card-image">
+					<img src="{{ star.imageUrl }}" alt="Étoile {{ star.name }}">
 				</div>
 
-				<div class="post-footer">
-					<p class="description">Description : {{ star.description }}</p>
-					<br>
-					<p>
-						Créer le :
-                        {{ star.createdAt ? star.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+				<div class="star-card-content">
 
-                        </p>
-					<p>
-						<a href="{{ path('app_stars_edit', {'id': star.id}) }}">Modifier</a>
-						<a href="{{ path('app_stars_delete', {'id': star.id}) }}">Supprimer</a>
+					{% if star.description %}
+						<p class="star-description">
+							{{ star.description }}
+						</p>
+					{% endif %}
+
+					<p class="star-date">
+						<i class="fas fa-calendar-alt"></i>
+						Créée le {{ star.createdAt ? star.createdAt|date('d/m/Y à H:i') : '' }}
 					</p>
+
 				</div>
-			</div>
+
+				<div class="star-card-actions">
+					<a href="{{ path('app_stars_edit', {'id': star.id}) }}"
+					class="star-action edit-action">
+						<i class="fas fa-pen"></i>
+						Modifier
+					</a>
+
+					{{ include('stars/_delete_form.html.twig') }}
+					
+				</div>
+
+			</article>
 		{% else %}
-			<p>Aucun partage à afficher.</p>
+			<div class="empty-state">
+				<i class="fas fa-star"></i>
+				<p>Vous n'avez encore aucune étoile.</p>
+
+				<a href="{{ path('app_stars_new') }}" class="lienBtnCreate">
+					<i class="fas fa-plus"></i>
+					Créer ma première étoile
+				</a>
+			</div>
 		{% endfor %}
 	</div>
-
 {% endblock %}

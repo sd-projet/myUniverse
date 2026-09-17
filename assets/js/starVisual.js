@@ -9,14 +9,18 @@ class StarScene {
                     return;
                 }
         
-        this.width = width;  // Largeur de la scène
-        this.height = height; // Hauteur de la scène
+        // this.width = width;  // Largeur de la scène
+        // this.height = height; // Hauteur de la scène
+
+        this.width = this.container.clientWidth;
+        this.height = this.container.clientHeight;
 
         // Créer la scène 3D, la caméra, et le renderer (rendu WebGL)
         this.scene = new THREE.Scene(); // La scène 3D
         this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000); // La caméra perspective
         this.renderer = new THREE.WebGLRenderer(); // Le moteur de rendu WebGL
         this.renderer.setSize(this.width, this.height); // On définit la taille du renderer
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.container.appendChild(this.renderer.domElement); // On ajoute le canvas du renderer dans le conteneur HTML
 
         // Créer une étoile 3D et l'ajouter à la scène
@@ -90,10 +94,24 @@ class StarScene {
     }
 
     // Gère le redimensionnement de la fenêtre pour adapter la caméra et le renderer
-    onResize() {
+    /*onResize() {
         this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
         this.camera.updateProjectionMatrix(); // Met à jour la matrice de projection de la caméra
         this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight); // Adapte la taille du renderer
+    }*/
+
+    onResize() {
+        const width = this.container.clientWidth;
+        const height = this.container.clientHeight;
+
+        if (!width || !height) {
+            return;
+        }
+
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+
+        this.renderer.setSize(width, height);
     }
 
     // Gère les mises à jour des propriétés de l'étoile via des inputs utilisateur (taille, position, couleur)

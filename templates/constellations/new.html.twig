@@ -1,10 +1,16 @@
 {% extends 'dashboard/index.html.twig' %}
 
-{% block title %}New Constellations{% endblock %}
+{% block title %}Créer ma constellation{% endblock %}
 
 {% block body %}
-    <a href="{{ path('app_user_constellations') }}">Retour</a>
+    <div class="page-header">
+        <a href="{{ path('app_user_constellations') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Retour</span>
+        </a>
+
+        <h1>Créer ma constellation</h1>
+    </div>
 
     {{ include('constellations/_form.html.twig') }}
-
 {% endblock %}

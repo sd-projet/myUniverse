@@ -16,6 +16,9 @@ class ThreeJSConstellation {
 
                 this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
                 this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+                this.renderer.setPixelRatio(
+                    Math.min(window.devicePixelRatio, 2)
+                );
                 this.container.appendChild(this.renderer.domElement);
 
                 this.light = new THREE.PointLight(0xffffff, 1.2, 100);
@@ -37,12 +40,27 @@ class ThreeJSConstellation {
                 this.initEventListeners();
                 this.recreateConstellation();
                 this.animate();
+                window.addEventListener('resize', () => this.onResize());
 
                 // Lancer la capture d'image après 15 secondes
                 setTimeout(this.saveImageToServer.bind(this), 15000);
             }
         }
    // }
+
+    onResize() {
+        const width = this.container.clientWidth;
+        const height = this.container.clientHeight;
+
+        if (!width || !height) {
+            return;
+        }
+
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+
+        this.renderer.setSize(width, height);
+    }
 
     // recrer la constellation si elle existe
     recreateConstellation() {
@@ -121,7 +139,7 @@ class ThreeJSConstellation {
         })
             .then(response => response.json())
             .then(data => {
-                const updatedStar = getStarByName(star.userData.name);
+                const updatedStar = this.getStarByName(star.userData.name);
                 if (updatedStar) {
                     updatedStar.position.set(data.position.x, data.position.y, data.position.z);
                 }
@@ -209,8 +227,8 @@ class ThreeJSConstellation {
     }
 
     selectConstellation(id) {
-        activeConstellationId = id;
-        console.log("Constellation sélectionnée :", activeConstellationId);
+        this.activeConstellationId = id;
+        //console.log("Constellation sélectionnée :", activeConstellationId);
     }
 
     saveImageToServer() {

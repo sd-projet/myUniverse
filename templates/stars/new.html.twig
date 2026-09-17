@@ -1,6 +1,16 @@
 {% extends 'dashboard/index.html.twig' %}
 
+{% block title %}Créer ma star{% endblock %}
+
 {% block body %}
-    <p><a href="{{ path('app_user_stars') }}" class="lienBtn">Retour</a></p>
+    <div class="page-header">
+        <a href="{{ path('app_user_stars') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Retour</span>
+        </a>
+
+        <h1>Créer ma star</h1>
+    </div>
+
     {{ include('stars/_form.html.twig') }}
 {% endblock %}

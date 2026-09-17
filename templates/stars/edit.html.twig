@@ -1,16 +1,20 @@
 {% extends 'dashboard/index.html.twig' %}
 
-{% block title %}Modifier Stars{% endblock %}
+{% block title %}Modifier ma star{% endblock %}
 
 {% block body %}
-    <h1>Modifier Stars</h1>
-    <br>
-    <p><a href="{{ path('app_user_stars') }}" class="lienBtn">Retour</a></p>
+    <div class="page-header">
+        <a href="{{ path('app_user_stars') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Retour</span>
+        </a>
 
-    {{ include('stars/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
-    
-    <div class="form-footer">
-        {{ include('stars/_delete_form.html.twig') }}
+        <h1>Modifier ma star</h1>
     </div>
 
+    {{ include('stars/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+
+    <div class="delete-container">
+        {{ include('stars/_delete_form.html.twig') }}
+    </div>
 {% endblock %}
