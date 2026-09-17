@@ -205,7 +205,11 @@ body {
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
+}
 
+.form-group2 label {
+    display: block;
+    margin-bottom: 8px;
 }
 
 .form-footer {
@@ -215,7 +219,7 @@ body {
 }
 
 .form-footer button {
-    background-color: #007BFF;
+    background-color: #c6ab00;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -260,7 +264,7 @@ body {
 }
 
 .form-footer button:hover {
-    background-color: #0056b3;
+    background-color: #c6aa00;
 }
 
 .form-group label {
@@ -953,4 +957,32 @@ input:focus, textarea:focus, select:focus {
     .constellation-preview #threejs-containerConstel {
         min-height: 400px;
     }
+}
+
+/*btn enregistrer publication*/
+
+.publish-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border: 1px solid #c6aa00;
+    border-radius: 7px;
+    background: rgba(198, 170, 0, 0.15);
+    color: #c6aa00;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.publish-button:hover {
+    background: #c6aa00;
+    color: #000;
+    transform: translateY(-2px);
+}
+
+.publish-button i {
+    font-size: 13px;
 }

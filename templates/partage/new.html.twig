@@ -1,12 +1,18 @@
 {% extends 'dashboard/index.html.twig' %}
 
-{% block title %}New Partage{% endblock %}
+{% block title %}Publier un post{% endblock %}
 
 {% block body %}
-    <a href="{{ path('app_partage_index') }}" class="lienBtnCreate">Retour</a>
-    
-    <h1>Publier un poste</h1>
-    <div class="form-container">
-    {{ include('partage/_form.html.twig') }}
+
+    <div class="page-header">
+        <a href="{{ path('app_partage_index') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Retour</span>
+        </a>
+
+        <h1>Publier un post</h1>
     </div>
+
+    {{ include('partage/_form.html.twig') }}
+
 {% endblock %}

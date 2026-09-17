@@ -1,34 +1,92 @@
 {% extends 'dashboard/index.html.twig' %}
 
-{% block title %}Partage index
-{% endblock %}
+{% block title %}Mes Partages{% endblock %}
 
 {% block body %}
-	<h1>Mes Partages</h1>
-	<a href="{{ path('app_partage_new') }}" class="lienBtnCreate">Publier un post</a>
 
-	<div class="post-container">
-		{% for partage in partages %}
-			<div class="post">
-				<!-- Image du partage -->
-				<div class="post-image">
-					<img src="{{ partage.imageUrl }}" alt="Image du partage">
-				</div>
+    <div class="page-header">
+        <h1>Mes Partages</h1>
 
-				<div class="post-footer">
-					<p class="description">{{ partage.description }}</p>
-					<br>
-					<p> Créer le : {{ partage.createdAt ? partage.createdAt|date('Y-m-d H:i:s') : '' }}</p>
-					<p>
-						<a href="{{ path('app_partage_edit', {'id': partage.id}) }}">Modifier</a>
-						<a href="{{ path('app_partage_delete', {'id': partage.id}) }}">Supprimer</a>
-					</p>
-				</div>
-			</div>
-		{% else %}
-			<p>Aucun partage à afficher.</p>
-		{% endfor %}
-	</div>
+        <a href="{{ path('app_partage_new') }}"
+           class="lienBtnCreate create-button">
+            <i class="fas fa-plus"></i>
+            Publier un post
+        </a>
+    </div>
 
-	<br>
+    <div class="post-container">
+
+        {% for partage in partages %}
+
+            <article class="star-card">
+
+                <div class="star-card-image">
+                    <img src="{{ partage.imageUrl }}"
+                         alt="Image du partage">
+                </div>
+
+                <div class="star-card-content">
+
+                    {% if partage.description %}
+                        <p class="star-description">
+                            {{ partage.description }}
+                        </p>
+                    {% endif %}
+
+                    <p class="star-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        Publié le
+                        {{ partage.createdAt
+                            ? partage.createdAt|date('d/m/Y à H:i')
+                            : '' }}
+                    </p>
+
+                </div>
+
+                <div class="star-card-actions">
+
+                    <a href="{{ path('app_partage_edit', {'id': partage.id}) }}"
+                       class="edit-action">
+                        <i class="fas fa-pen"></i>
+                        Modifier
+                    </a>
+
+                    <form method="post"
+                          action="{{ path('app_partage_delete', {'id': partage.id}) }}"
+                          onsubmit="return confirm('Êtes-vous sûre de vouloir supprimer ce partage ?');">
+
+                        <input type="hidden"
+                               name="_token"
+                               value="{{ csrf_token('delete' ~ partage.id) }}">
+
+                        <button type="submit"
+                                class="delete-button">
+                            <i class="fas fa-trash-alt"></i>
+                            Supprimer
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </article>
+
+        {% else %}
+
+            <div class="empty-state">
+                <i class="fas fa-share-alt"></i>
+
+                <p>Vous n'avez encore aucun partage.</p>
+
+                <a href="{{ path('app_partage_new') }}"
+                   class="lienBtnCreate">
+                    <i class="fas fa-plus"></i>
+                    Publier mon premier post
+                </a>
+            </div>
+
+        {% endfor %}
+
+    </div>
+
 {% endblock %}

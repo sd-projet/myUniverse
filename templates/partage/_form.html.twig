@@ -1,4 +1,44 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="lienBtnCreate">{{ button_label|default('Enregistrer') }}</button>
+{{ form_start(form, {
+    'attr': {
+        'class': 'form-container'
+    }
+}) }}
+
+    <div class="form-group2">
+        {{ form_label(form.description, 'Description') }}
+
+        {{ form_widget(form.description, {
+            'attr': {
+                'placeholder': 'Écrivez quelque chose à propos de votre partage...'
+            }
+        }) }}
+    </div>
+
+    <div class="form-group2">
+        {{ form_label(form.constellation, 'Constellation') }}
+
+        {{ form_widget(form.constellation) }}
+
+        <p class="form-help">
+            Vous pouvez associer une constellation à votre partage.
+        </p>
+    </div>
+
+    <div class="form-group2">
+        {{ form_label(form.star, 'Étoile') }}
+
+        {{ form_widget(form.star) }}
+
+        <p class="form-help">
+            Vous pouvez également associer une étoile à votre partage.
+        </p>
+    </div>
+
+    <div class="form-footer">
+        <button type="submit" class="publish-button">
+            <i class="fas fa-paper-plane"></i>
+            {{ button_label|default('Publier mon post') }}
+        </button>
+    </div>
+
 {{ form_end(form) }}
