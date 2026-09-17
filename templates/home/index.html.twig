@@ -3,38 +3,79 @@
 {% block title %}MyUniverse{% endblock %}
 
 {% block body %}
-	<section class="welcome-section">
-		<h1>Bienvenue sur MyUniverse</h1>
-		<br>
-		<p>Créez votre propre galaxie et explorez l'univers personnalisé qui vous est dédié.</p>
-	</section>
-	<br>
-	<div class="post-container">
+
+    <section class="welcome-section">
+        <h1>Bienvenue sur MyUniverse</h1>
+        <p>
+            Créez votre propre galaxie et explorez l'univers personnalisé
+            qui vous est dédié.
+        </p>
+    </section>
+
+    <div class="home-feed">
+
         {% for partage in partages %}
-            <div class="post">
-                <!-- En-tête avec profil utilisateur -->
-                <div class="post-header">
-                    <img src="{{ asset('uploads/profile_pictures/' ~ partage.user.profilePicture) }}" 
-                        alt="photo de profil" class="profile-pic">
-                    <span class="username">{{ partage.user.name }}</span>
-                </div>
 
-                <!-- Image du partage -->
-                <div class="post-image">
-                    <img src="{{ partage.imageUrl }}" alt="Image du partage">
-                </div>
+            <article class="share-card">
 
-                <!-- Boutons de like et commentaire -->
-                <div class="post-footer">
-                    <div class="icons">
-                        <button class="like-btn">❤️</button>
-                        <button class="comment-btn">💬</button>
+                <div class="share-card-header">
+                    <img src="{{ asset('uploads/profile_pictures/' ~ partage.user.profilePicture) }}"
+                         alt="Photo de profil de {{ partage.user.name }}"
+                         class="profile-pic">
+
+                    <div class="share-user">
+                        <span class="username">
+                            {{ partage.user.name }}
+                        </span>
+
+                        <span class="share-date">
+                            {{ partage.createdAt
+                                ? partage.createdAt|date('d/m/Y à H:i')
+                                : '' }}
+                        </span>
                     </div>
-                    <p class="description">{{ partage.description }}</p>
                 </div>
-            </div>
+
+                <div class="share-card-image">
+                    <img src="{{ partage.imageUrl }}"
+                         alt="Partage de {{ partage.user.name }}">
+                </div>
+
+                <div class="share-card-content">
+
+                    <div class="share-actions">
+                        <button type="button"
+                                class="share-action-button like-btn"
+                                aria-label="Aimer">
+                            <i class="far fa-heart"></i>
+                        </button>
+
+                        <button type="button"
+                                class="share-action-button comment-btn"
+                                aria-label="Commenter">
+                            <i class="far fa-comment"></i>
+                        </button>
+                    </div>
+
+                    {% if partage.description %}
+                        <p class="share-description">
+                            {{ partage.description }}
+                        </p>
+                    {% endif %}
+
+                </div>
+
+            </article>
+
         {% else %}
-            <p>Aucun partage à afficher.</p>
+
+            <div class="empty-state">
+                <i class="fas fa-globe"></i>
+                <p>Aucun partage à afficher pour le moment.</p>
+            </div>
+
         {% endfor %}
+
     </div>
+
 {% endblock %}
