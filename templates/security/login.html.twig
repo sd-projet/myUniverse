@@ -1,70 +1,118 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Connexion
-{% endblock %}
+{% block title %}Connexion{% endblock %}
 
 {% block body %}
-	
-	<form method="post" class="form-container">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
 
-    {% if app.user %}
-        <div class="mb-3 user-info">
-            <p>Vous êtes connecté en tant que <strong>{{ app.user.userIdentifier }}</strong></p>
-            <a href="{{ path('app_logout') }}" class="logout-btn">Se déconnecter</a>
-        </div>
-    {% endif %}
+    <div class="auth-page">
 
-    <h1 class="h3 mb-3 font-weight-normal">Me connecter</h1>
-	<br>
-    <div class="form-group">
-        <label for="username">
-            <i class="fas fa-envelope"></i> Email
-        </label>
-        <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" required autofocus>
+        <form method="post" class="auth-container">
+
+            {% if error %}
+                <div class="auth-alert">
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                </div>
+            {% endif %}
+
+            {% if app.user %}
+                <div class="user-info">
+                    <p>
+                        Vous êtes connecté en tant que
+                        <strong>{{ app.user.userIdentifier }}</strong>
+                    </p>
+
+                    <a href="{{ path('app_logout') }}" class="logout-btn">
+                        Se déconnecter
+                    </a>
+                </div>
+            {% endif %}
+
+            <div class="auth-header">
+                <i class="fas fa-user-astronaut"></i>
+                <h1>Me connecter</h1>
+                <p>Retrouvez votre univers personnel.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-envelope"></i>
+                    Email
+                </label>
+
+                <input type="email"
+                       value="{{ last_username }}"
+                       name="_username"
+                       id="username"
+                       class="form-control"
+                       required
+                       autofocus>
+            </div>
+
+            <div class="form-group password-wrapper">
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                    Mot de passe
+                </label>
+
+                <input type="password"
+                       name="_password"
+                       id="password"
+                       class="form-control"
+                       required>
+
+                <button type="button"
+                        class="toggle-password"
+                        onclick="togglePassword()"
+                        aria-label="Afficher le mot de passe">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+
+            <input type="hidden"
+                   name="_csrf_token"
+                   value="{{ csrf_token('authenticate') }}">
+
+            <div class="remember-me">
+                <input type="checkbox"
+                       name="_remember_me"
+                       id="_remember_me">
+
+                <label for="_remember_me">
+                    Rester connecté
+                </label>
+            </div>
+
+            <button class="auth-button" type="submit">
+                <i class="fas fa-sign-in-alt"></i>
+                Me connecter
+            </button>
+
+            <p class="auth-switch">
+                Vous n'avez pas de compte ?
+                <a href="{{ path('app_register') }}" class="liens">
+                    Inscrivez-vous
+                </a>
+            </p>
+
+        </form>
+
     </div>
 
-    <div class="form-group password-wrapper">
-        <label for="password">
-            <i class="fas fa-lock"></i> Mot de passe
-        </label>
-        <input type="password" name="_password" id="password" class="form-control" required>
-        <span class="toggle-password" onclick="togglePassword()">
-            <i class="fas fa-eye"></i>
-        </span>
-    </div>
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById("password");
+            const icon = document.querySelector(".toggle-password i");
 
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-    <div class="checkbox mb-3">
-        <input type="checkbox" name="_remember_me" id="_remember_me">
-        <label for="_remember_me">Rester connecté</label>
-    </div>
-
-    <button class="lienBtn" type="submit">
-    </i> Me connecter
-    </button>
-	<br>
-
-    <p>Vous n'avez pas de compte ? <a href="{{ path('app_register') }}" class="liens">Inscrivez-vous</a></p>
-</form>
-
-<script>
-    function togglePassword() {
-        var passwordField = document.getElementById("password");
-        var icon = document.querySelector(".toggle-password i");
-        if (passwordField.type === "password") {
-            passwordField.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-        } else {
-            passwordField.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
         }
-    }
-</script>
+    </script>
 
 {% endblock %}

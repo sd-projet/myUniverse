@@ -3,62 +3,103 @@
 {% block title %}Inscription{% endblock %}
 
 {% block body %}
-	<div class="form-container">
-		<h1>Créer un compte</h1>
-		<br>
-		<br>
 
-		{{ form_start(registrationForm, {'attr': {'autocomplete': 'off'}}) }}
+    <div class="auth-page">
 
-		{% for field in [registrationForm.name, registrationForm.email, registrationForm.password] %}
-			<div class="form-group">
-				<label for="{{ field.vars.id }}">
-					{% if field.vars.name == 'name' %} <i class="fas fa-user"></i> Nom utilisateur {% endif %}
-					{% if field.vars.name == 'email' %} <i class="fas fa-envelope"></i> Email {% endif %}
-					{% if field.vars.name == 'password' %} <i class="fas fa-lock"></i> Mot de passe {% endif %}
-				</label>
-				{{ form_widget(field, {
-					'attr': {
-						'placeholder': field.vars.label,
-						'autocomplete': 'off',
-						'class': 'form-control'
-					}
-				}) }}
-				
-				{% if field.vars.name == 'password' %}
-					<span class="toggle-password" onclick="togglePassword()">
-						<i class="fas fa-eye"></i>
-					</span>
-				{% endif %}
-				
-			
-			</div>
-		{% endfor %}
+        <div class="auth-container">
 
-		<button class="submit-btn">
-			</i> S'inscrire
-		</button>
+            <div class="auth-header">
+                <i class="fas fa-user-plus"></i>
+                <h1>Créer un compte</h1>
+                <p>Créez votre propre univers.</p>
+            </div>
 
-		<p>Vous avez déjà un compte ? 
-			<a href="{{ path('app_login') }}" class="liens">Connectez-vous</a>
-		</p>
+            {{ form_start(registrationForm, {
+                'attr': {
+                    'autocomplete': 'off'
+                }
+            }) }}
 
-		{{ form_end(registrationForm) }}
-	</div>
+                {% for field in [
+                    registrationForm.name,
+                    registrationForm.email,
+                    registrationForm.password
+                ] %}
 
-	<script>
-		function togglePassword() {
-			var passwordField = document.getElementById("{{ registrationForm.password.vars.id }}");
-			var icon = document.querySelector(".toggle-password i");
-			if (passwordField.type === "password") {
-				passwordField.type = "text";
-				icon.classList.remove("fa-eye");
-				icon.classList.add("fa-eye-slash");
-			} else {
-				passwordField.type = "password";
-				icon.classList.remove("fa-eye-slash");
-				icon.classList.add("fa-eye");
-			}
-		}
-	</script>
+                    <div class="form-group">
+
+                        <label for="{{ field.vars.id }}">
+
+                            {% if field.vars.name == 'name' %}
+                                <i class="fas fa-user"></i>
+                                Nom utilisateur
+                            {% elseif field.vars.name == 'email' %}
+                                <i class="fas fa-envelope"></i>
+                                Email
+                            {% elseif field.vars.name == 'password' %}
+                                <i class="fas fa-lock"></i>
+                                Mot de passe
+                            {% endif %}
+
+                        </label>
+
+                        {{ form_widget(field, {
+                            'attr': {
+                                'placeholder': field.vars.label,
+                                'autocomplete': 'off',
+                                'class': 'form-control'
+                            }
+                        }) }}
+
+                        {% if field.vars.name == 'password' %}
+                            <button type="button"
+                                    class="toggle-password"
+                                    onclick="togglePassword()"
+                                    aria-label="Afficher le mot de passe">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+                <button class="auth-button" type="submit">
+                    <i class="fas fa-user-plus"></i>
+                    S'inscrire
+                </button>
+
+                <p class="auth-switch">
+                    Vous avez déjà un compte ?
+                    <a href="{{ path('app_login') }}" class="liens">
+                        Connectez-vous
+                    </a>
+                </p>
+
+            {{ form_end(registrationForm) }}
+
+        </div>
+
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordField =
+                document.getElementById("{{ registrationForm.password.vars.id }}");
+
+            const icon =
+                document.querySelector(".toggle-password i");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    </script>
+
 {% endblock %}
