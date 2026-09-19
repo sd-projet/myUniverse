@@ -45,7 +45,7 @@ final class ConstellationsController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $constellation->setUser($user);
-                $constellation->setCreatedAtValue(new \DateTimeImmutable());
+                // $constellation->setCreatedAtValue(new \DateTimeImmutable());
 
                 // Récupérer et valider les étoiles sélectionnées via le champ caché
                 $etoileJson = $request->request->get('etoile_json');
@@ -79,7 +79,12 @@ final class ConstellationsController extends AbstractController
                 $entityManager->flush();
                 $entityManager->refresh($constellation);
 
-                return $this->redirectToRoute('app_user_constellations', [], Response::HTTP_SEE_OTHER);
+                // return $this->redirectToRoute('app_user_constellations', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute(
+                    'app_constellations_edit',
+                    ['id' => $constellation->getId()],
+                    Response::HTTP_SEE_OTHER
+                );
             } catch (\Exception $e) {
                 $this->addFlash('danger', 'Une erreur est survenue lors de la création de la constellation.');
             }
@@ -172,8 +177,8 @@ final class ConstellationsController extends AbstractController
         ]);
     }
 
-    #[Route('/update-star', name: 'app_update_star', methods: ['POST'])]
-    public function updateStarPosition(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    /*#[Route('/update-star', name: 'app_update_star', methods: ['POST'])]
+    public function updateStarPositionOLD(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -216,10 +221,91 @@ final class ConstellationsController extends AbstractController
         }
 
         return new JsonResponse(['message' => 'Position mise à jour avec succès'], Response::HTTP_OK);
+    }*/
+
+    #[Route('/update-star', name: 'app_update_star', methods: ['POST'])]
+    public function updateStarPosition(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ConstellationsRepository $constellationsRepository
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+
+        if (
+            !$data ||
+            !isset($data['constellation_id'], $data['name'], $data['position']) ||
+            !isset(
+                $data['position']['x'],
+                $data['position']['y'],
+                $data['position']['z']
+            )
+        ) {
+            return new JsonResponse(
+                ['error' => 'Données invalides'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $constellation = $constellationsRepository->find(
+            $data['constellation_id']
+        );
+
+        if (!$constellation) {
+            return new JsonResponse(
+                ['error' => 'Constellation non trouvée'],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        if ($constellation->getUser() !== $this->getUser()) {
+            return new JsonResponse(
+                ['error' => 'Accès interdit'],
+                Response::HTTP_FORBIDDEN
+            );
+        }
+
+        $stars = $constellation->getEtoile();
+        $starFound = false;
+
+        foreach ($stars as &$star) {
+
+            if (($star['name'] ?? null) === $data['name']) {
+
+                $star['x'] = (float) $data['position']['x'];
+                $star['y'] = (float) $data['position']['y'];
+                $star['z'] = (float) $data['position']['z'];
+
+                $starFound = true;
+
+                break;
+            }
+        }
+
+        unset($star);
+
+        if (!$starFound) {
+            return new JsonResponse(
+                ['error' => 'Étoile non présente dans cette constellation'],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $constellation->setEtoile($stars);
+
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'message' => 'Position mise à jour avec succès',
+            'position' => [
+                'x' => (float) $data['position']['x'],
+                'y' => (float) $data['position']['y'],
+                'z' => (float) $data['position']['z'],
+            ]
+        ]);
     }
 
-    #[Route('/update-lines', name: 'app_update_lines', methods: ['POST'])]
-    public function updateLines(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    /*#[Route('/update-lines', name: 'app_update_lines', methods: ['POST'])]
+    public function updateLinesOLD(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
 
         $data = json_decode($request->getContent(), true);
@@ -241,6 +327,53 @@ final class ConstellationsController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse(['message' => 'Lignes mises à jour avec succès'], Response::HTTP_OK);
+    }*/
+
+    #[Route('/update-lines', name: 'app_update_lines', methods: ['POST'])]
+    public function updateLines(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ConstellationsRepository $constellationsRepository
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+
+        if (
+            !$data ||
+            !isset($data['constellation_id']) ||
+            !isset($data['lines_etoiles']) ||
+            !is_array($data['lines_etoiles'])
+        ) {
+            return new JsonResponse(
+                ['error' => 'Données invalides'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $constellation = $constellationsRepository->find(
+            $data['constellation_id']
+        );
+
+        if (!$constellation) {
+            return new JsonResponse(
+                ['error' => 'Constellation non trouvée'],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        if ($constellation->getUser() !== $this->getUser()) {
+            return new JsonResponse(
+                ['error' => 'Accès interdit'],
+                Response::HTTP_FORBIDDEN
+            );
+        }
+
+        $constellation->setLines($data['lines_etoiles']);
+
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'message' => 'Lignes mises à jour avec succès'
+        ]);
     }
 
     #[Route('/get-constellation-lines/{id}', name: 'app_get_constellation_lines', methods: ['GET'])]
