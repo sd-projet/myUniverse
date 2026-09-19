@@ -39,12 +39,30 @@ class StarSelector {
     }
 
     // Méthode pour charger les étoiles stockées depuis l'input JSON
-    loadStoredStars() {
+    /*loadStoredStars() {
         try {
             let storedStars = JSON.parse(this.etoileJsonInput.value || '[]');
             storedStars.forEach(star => this.addStar(star.name, star.x, star.y, star.color));
         } catch (error) {
             console.error("Erreur lors du parsing JSON :", error);
+        }
+    }*/
+
+    loadStoredStars() {
+        try {
+            let storedStars = JSON.parse(this.etoileJsonInput.value || '[]');
+
+            storedStars.forEach(star => {
+                this.addStar(
+                    star.name,
+                    star.x,
+                    star.y,
+                    star.color,
+                    false
+                );
+            });
+        } catch (error) {
+            console.error("Erreur lors du chargement des étoiles :", error);
         }
     }
 
@@ -72,7 +90,7 @@ class StarSelector {
     }
 
     // Si l'étoile est déjà affichée, on ne la recrée pas
-    addStar(name, x, y, color) {
+    /*addStar(name, x, y, color) {
         // Vérifie si l'étoile n'est pas déjà dans la liste des étoiles sélectionnées
         if (!this.selectedStars.some(star => star.name === name)) {
             this.selectedStars.push({ name, x, y, color });
@@ -86,6 +104,29 @@ class StarSelector {
 
             // Ajoute l'étoile à la scène
             window.addStarToScene(name, x, y, color); // Ajoute l'étoile dans la scène Three.js
+        }
+    }*/
+
+    addStar(name, x, y, color, addToScene = true) {
+        if (!this.selectedStars.some(star => star.name === name)) {
+            this.selectedStars.push({
+                name: name,
+                x: x,
+                y: y,
+                color: color
+            });
+
+            this.updateEtoileJson();
+
+            const tag = this.createStarTag(name, x, y, color);
+
+            if (tag) {
+                this.selectedStarsContainer.appendChild(tag);
+            }
+
+            if (addToScene && typeof window.addStarToScene === 'function') {
+                window.addStarToScene(name, x, y, color);
+            }
         }
     }
 
@@ -111,6 +152,16 @@ class StarSelector {
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', () => {
-    new StarSelector('etoile-select', 'selected-stars', 'etoile-json');
-});
+    const selectElement = document.getElementById('etoile-select');
 
+    // Cette page n'utilise pas le sélecteur d'étoiles.
+    if (!selectElement) {
+        return;
+    }
+
+    new StarSelector(
+        'etoile-select',
+        'selected-stars',
+        'etoile-json'
+    );
+});

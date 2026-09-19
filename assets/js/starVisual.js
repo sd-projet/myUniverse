@@ -5,9 +5,9 @@ class StarScene {
         this.container = document.getElementById(containerId); // Le conteneur HTML où la scène sera rendue
         
         if (!this.container) {
-                    console.error("Erreur : Conteneur Three.js introuvable !");
-                    return;
-                }
+            console.error("Erreur : Conteneur Three.js introuvable !");
+            return;
+        }
         
         // this.width = width;  // Largeur de la scène
         // this.height = height; // Hauteur de la scène
@@ -93,13 +93,6 @@ class StarScene {
         this.renderer.render(this.scene, this.camera); // Rendu de la scène
     }
 
-    // Gère le redimensionnement de la fenêtre pour adapter la caméra et le renderer
-    /*onResize() {
-        this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
-        this.camera.updateProjectionMatrix(); // Met à jour la matrice de projection de la caméra
-        this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight); // Adapte la taille du renderer
-    }*/
-
     onResize() {
         const width = this.container.clientWidth;
         const height = this.container.clientHeight;
@@ -139,7 +132,7 @@ class StarScene {
     }
 
     // Sauvegarde l'image de la scène sur le serveur
-    saveImageToServer() {
+    /*saveImageToServer() {
         const canvas = this.renderer.domElement;
         const starId = this.container.getAttribute('data-star-id');
         
@@ -154,6 +147,37 @@ class StarScene {
                 const dataURL = canvas.toDataURL('image/png'); // Convertit la scène en image PNG
 
                 // Envoie l'image au serveur
+                fetch(`/stars/save-image/${starId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: dataURL })
+                })
+                    .then(response => response.json())
+                    .then(data => console.log('Image enregistrée avec succès:', data))
+                    .catch(error => console.error('Erreur lors de la sauvegarde:', error));
+            });
+        }
+    }*/
+
+    saveImageToServer() {
+        if (!this.renderer || !this.container) {
+            return;
+        }
+
+        const canvas = this.renderer.domElement;
+        const starId = this.container.getAttribute('data-star-id');
+
+        if (!canvas) {
+            console.error("Aucun canvas trouvé dans #threejs-container");
+            return;
+        }
+
+        if (!this.isRendered) {
+            requestAnimationFrame(() => {
+                this.isRendered = true;
+
+                const dataURL = canvas.toDataURL('image/png');
+
                 fetch(`/stars/save-image/${starId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -197,12 +221,20 @@ class StarScene {
 
 // Création de l'instance de la scène après que le DOM soit entièrement chargé
 document.addEventListener('DOMContentLoaded', () => {
-    const starScene = new StarScene('threejs-container'); // Crée la scène pour le conteneur spécifié
-    starScene.startImageCaptureTimer(); // Démarre le timer pour capturer l'image
+    const container = document.getElementById('threejs-container');
+
+    // Cette page n'utilise pas la scène Three.js des étoiles.
+    if (!container) {
+        return;
+    }
+
+    const starScene = new StarScene('threejs-container');
+
+    starScene.startImageCaptureTimer();
 
     // Écoute un événement personnalisé pour mettre à jour les étoiles dans la scène
     document.addEventListener("starsUpdated", (event) => {
-        const stars = event.detail; // Récupère les nouvelles étoiles
-        starScene.updateStars(stars); // Met à jour la scène avec les nouvelles étoiles
+        const stars = event.detail;
+        starScene.updateStars(stars);
     });
 });

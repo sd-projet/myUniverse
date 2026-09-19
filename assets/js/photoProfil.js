@@ -6,9 +6,14 @@ class ImageUploader {
         this.inputFile = document.querySelector(inputFileSelector);
         this.profilePreview = document.getElementById(profilePreviewSelector);
 
+        // Cette page n'utilise pas l'upload d'image de profil.
+        if (!this.dropzone || !this.inputFile || !this.profilePreview) {
+            return;
+        }
+
         // Gestion du survol de la zone de drop
         this.addDragAndDropEvents();
-        
+
         // Gestion du changement de fichier via input
         this.addFileInputChangeEvent();
 
