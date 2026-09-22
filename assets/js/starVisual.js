@@ -18,7 +18,9 @@ class StarScene {
         // Créer la scène 3D, la caméra, et le renderer (rendu WebGL)
         this.scene = new THREE.Scene(); // La scène 3D
         this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000); // La caméra perspective
-        this.renderer = new THREE.WebGLRenderer(); // Le moteur de rendu WebGL
+        this.renderer = new THREE.WebGLRenderer({ // Le moteur de rendu WebGL
+            preserveDrawingBuffer: true
+        });
         this.renderer.setSize(this.width, this.height); // On définit la taille du renderer
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.container.appendChild(this.renderer.domElement); // On ajoute le canvas du renderer dans le conteneur HTML
@@ -34,6 +36,13 @@ class StarScene {
         this.camera.position.z = 15;
 
         // Initialiser l'animation
+
+        this.isAnimating = true;
+        this.isDragging = false;
+        this.previousMouseX = 0;
+        this.previousMouseY = 0;
+        this.rotationSpeed = 0.001;
+
         this.animate();
 
         // Gérer le redimensionnement de la fenêtre
@@ -41,6 +50,8 @@ class StarScene {
 
         // Gérer la mise à jour des propriétés de l'étoile via des inputs utilisateur
         this.handleInputUpdates();
+        this.handleRotationControls();
+        this.handleAnimationButton();
     }
 
     // Crée la forme d'une étoile à cinq branches (forme 2D)
@@ -84,10 +95,14 @@ class StarScene {
 
     // Fonction d'animation, appelée à chaque frame pour faire tourner l'étoile
     animate() {
-        requestAnimationFrame(() => this.animate()); // Appelle la fonction d'animation à chaque frame
-        this.starMesh.rotation.y += 0.001; // Rotation de l'étoile autour de l'axe Y
-        this.starMesh.rotation.x += 0.001; // Rotation de l'étoile autour de l'axe X
-        this.renderer.render(this.scene, this.camera); // Rendu de la scène
+        requestAnimationFrame(() => this.animate());
+
+        if (this.isAnimating && !this.isDragging) {
+            this.starMesh.rotation.y += this.rotationSpeed;
+            this.starMesh.rotation.x += this.rotationSpeed;
+        }
+
+        this.renderer.render(this.scene, this.camera);
     }
 
     onResize() {
@@ -109,44 +124,28 @@ class StarScene {
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', () => {
                 const value = parseFloat(input.value) || 0;
+                const fieldName = (input.name || input.id || '').toLowerCase();
 
-                if (
-                    input.id.includes('color') ||
-                    input.id === 'starColor'
-                ) {
+                if (fieldName.includes('color')) {
                     this.starMesh.material.color.set(input.value);
 
-                } else if (
-                    input.id.includes('size') ||
-                    input.id === 'starSize'
-                ) {
+                } else if (fieldName.includes('size')) {
                     const newSize = value || 1;
+                    this.starMesh.scale.set(newSize, newSize, newSize);
 
-                    this.starMesh.scale.set(
-                        newSize,
-                        newSize,
-                        newSize
-                    );
-
-                } else if (
-                    input.id.includes('x_position')
-                ) {
+                } else if (fieldName.includes('x_position')) {
                     this.starMesh.position.x = value;
 
-                } else if (
-                    input.id.includes('y_position')
-                ) {
+                } else if (fieldName.includes('y_position')) {
                     this.starMesh.position.y = value;
 
-                } else if (
-                    input.id.includes('z_position')
-                ) {
+                } else if (fieldName.includes('z_position')) {
                     this.starMesh.position.z = value;
                 }
             });
         });
 
-        // Appliquer immédiatement les valeurs déjà présentes
+        // Appliquer immédiatement les valeurs déjà présentes dans le formulaire
         document.querySelectorAll('input').forEach(input => {
             input.dispatchEvent(new Event('input'));
         });
@@ -295,6 +294,79 @@ class StarScene {
                 if (submitButton) {
                     submitButton.disabled = false;
                 }
+            }
+        });
+    }
+
+    handleRotationControls() {
+        this.renderer.domElement.style.cursor = 'grab';
+
+        this.renderer.domElement.addEventListener('pointerdown', (event) => {
+            this.isDragging = true;
+            this.isAnimating = false;
+
+            this.previousMouseX = event.clientX;
+            this.previousMouseY = event.clientY;
+
+            this.renderer.domElement.style.cursor = 'grabbing';
+
+            this.renderer.domElement.setPointerCapture(event.pointerId);
+        });
+
+        this.renderer.domElement.addEventListener('pointermove', (event) => {
+            if (!this.isDragging) {
+                return;
+            }
+
+            const deltaX = event.clientX - this.previousMouseX;
+            const deltaY = event.clientY - this.previousMouseY;
+
+            this.starMesh.rotation.y += deltaX * 0.01;
+            this.starMesh.rotation.x += deltaY * 0.01;
+
+            this.previousMouseX = event.clientX;
+            this.previousMouseY = event.clientY;
+        });
+
+        this.renderer.domElement.addEventListener('pointerup', (event) => {
+            this.isDragging = false;
+
+            this.renderer.domElement.style.cursor = 'grab';
+
+            this.renderer.domElement.releasePointerCapture(event.pointerId);
+        });
+
+        this.renderer.domElement.addEventListener('pointercancel', () => {
+            this.isDragging = false;
+            this.renderer.domElement.style.cursor = 'grab';
+        });
+    }
+
+    handleAnimationButton() {
+        const button = document.getElementById('toggle-star-animation');
+
+        if (!button) {
+            return;
+        }
+
+        button.addEventListener('click', () => {
+            this.isAnimating = !this.isAnimating;
+
+            const icon = button.querySelector('.control-icon');
+            const text = button.querySelector('.control-text');
+
+            if (this.isAnimating) {
+                icon.textContent = '⏸';
+                text.textContent = 'Pause';
+
+                button.setAttribute('aria-label', 'Mettre en pause');
+                button.setAttribute('title', 'Mettre en pause');
+            } else {
+                icon.textContent = '▶';
+                text.textContent = 'Reprendre';
+
+                button.setAttribute('aria-label', 'Reprendre l’animation');
+                button.setAttribute('title', 'Reprendre l’animation');
             }
         });
     }
