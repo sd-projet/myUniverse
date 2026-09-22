@@ -132,33 +132,6 @@ class StarScene {
     }
 
     // Sauvegarde l'image de la scène sur le serveur
-    /*saveImageToServer() {
-        const canvas = this.renderer.domElement;
-        const starId = this.container.getAttribute('data-star-id');
-        
-        if (!canvas) {
-            console.error("Aucun canvas trouvé dans #threejs-container");
-            return;
-        }
-
-        if (!this.isRendered) {
-            requestAnimationFrame(() => {
-                this.isRendered = true;
-                const dataURL = canvas.toDataURL('image/png'); // Convertit la scène en image PNG
-
-                // Envoie l'image au serveur
-                fetch(`/stars/save-image/${starId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: dataURL })
-                })
-                    .then(response => response.json())
-                    .then(data => console.log('Image enregistrée avec succès:', data))
-                    .catch(error => console.error('Erreur lors de la sauvegarde:', error));
-            });
-        }
-    }*/
-
     saveImageToServer() {
         if (!this.renderer || !this.container) {
             return;

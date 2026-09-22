@@ -30,7 +30,25 @@ class ThreeJSConstellation {
                 this.selectedStars = [];
                 this.draggingStar = null;
                 this.offset = new THREE.Vector3();
-                this.activeConstellationId = parseInt(this.container.getAttribute("data-constellation-id")) || null;
+                // this.activeConstellationId = parseInt(this.container.getAttribute("data-constellation-id")) || null;
+
+                const constellationId =
+                    this.container.getAttribute("data-constellation-id");
+
+                console.log(
+                    "ID constellation récupéré depuis le HTML :",
+                    constellationId
+                );
+
+                this.activeConstellationId =
+                    parseInt(constellationId) || null;
+
+                console.log(
+                    "activeConstellationId :",
+                    this.activeConstellationId
+                );
+
+
                 this.saveTimeout = null;
                 // this.isRendered = false;
 
@@ -109,46 +127,49 @@ class ThreeJSConstellation {
     }*/
 
     recreateConstellation() {
-    const starsData = JSON.parse(
-        document.getElementById("etoile-json").value || '[]'
-    );
-
-    const linesData = JSON.parse(
-        document.getElementById("lines-json").value || '[]'
-    );
-
-    console.log("ÉTOILES CHARGÉES :", starsData);
-    console.log("LIGNES CHARGÉES :", linesData);
-
-    starsData.forEach(star => {
-        this.addStarToScene(
-            star.name,
-            star.x,
-            star.y,
-            star.color,
-            star.z ?? 0
+        const starsData = JSON.parse(
+            document.getElementById("etoile-json").value || '[]'
         );
-    });
 
-    linesData.forEach(line => {
-        const star1 = this.getStarByName(line.star1);
-        const star2 = this.getStarByName(line.star2);
+        const linesData = JSON.parse(
+            document.getElementById("lines-json").value || '[]'
+        );
 
         console.log(
-            "Recréation ligne :",
-            line.star1,
-            "→",
-            line.star2,
-            " | objets :",
-            star1,
-            star2
+            "ÉTOILES CHARGÉES :",
+            JSON.stringify(starsData, null, 2)
         );
+        console.log("LIGNES CHARGÉES :", linesData);
 
-        if (star1 && star2) {
-            this.drawLineBetweenTwoStars(star1, star2);
-        }
-    });
-}
+        starsData.forEach(star => {
+            this.addStarToScene(
+                star.name,
+                star.x,
+                star.y,
+                star.color,
+                star.z ?? 0
+            );
+        });
+
+        linesData.forEach(line => {
+            const star1 = this.getStarByName(line.star1);
+            const star2 = this.getStarByName(line.star2);
+
+            console.log(
+                "Recréation ligne :",
+                line.star1,
+                "→",
+                line.star2,
+                " | objets :",
+                star1,
+                star2
+            );
+
+            if (star1 && star2) {
+                this.drawLineBetweenTwoStars(star1, star2);
+            }
+        });
+    }
 
     // recupere le nom des stars
     getStarByName(name) {
@@ -170,19 +191,6 @@ class ThreeJSConstellation {
     }
 
     // ajouter a la scene
-    /*addStarToScene(name, x, y, color = 0xffff00) {
-        const shape = this.createStarShape();
-        const geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.3, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.1, bevelSegments: 2 });
-        const material = new THREE.MeshStandardMaterial({ color, metalness: 0.6, roughness: 0.4 });
-
-        const starMesh = new THREE.Mesh(geometry, material);
-        starMesh.position.set(x, y, 0);
-        starMesh.userData.name = name;
-
-        this.scene.add(starMesh);
-        this.stars.push(starMesh);
-    }*/
-
     addStarToScene(name, x, y, color = 0xffff00, z = 0) {
         const shape = this.createStarShape();
 
@@ -214,92 +222,54 @@ class ThreeJSConstellation {
         this.stars.push(starMesh);
     }
 
-    // ftc pour tracer les lignes
-    /*drawLineBetweenTwoStars(star1, star2) {
-        const material = new THREE.LineBasicMaterial({ color: 0xffffff });
-        const geometry = new THREE.BufferGeometry().setFromPoints([star1.position, star2.position]);
-        const line = new THREE.Line(geometry, material);
-        line.userData = { star1, star2 };
+    // fct pour tracer les lignes
+    drawLineBetweenTwoStars(star1, star2) {
+
+        console.log("=== DRAW LINE ===");
+        console.log("star1 :", star1);
+        console.log("star2 :", star2);
+        console.log("star1 name :", star1?.userData?.name);
+        console.log("star2 name :", star2?.userData?.name);
+
+        if (!star1 || !star2) {
+            console.error("Une des étoiles est introuvable.");
+            return;
+        }
+
+        if (star1 === star2) {
+            console.warn("Impossible de relier une étoile à elle-même.");
+            return;
+        }
+
+        const geometry = new THREE.BufferGeometry().setFromPoints([
+            star1.position,
+            star2.position
+        ]);
+
+        const material = new THREE.LineBasicMaterial({
+            color: 0xffffff
+        });
+
+        const line = new THREE.Line(
+            geometry,
+            material
+        );
+
+        line.userData = {
+            star1: star1.userData.name,
+            star2: star2.userData.name
+        };
+
         this.scene.add(line);
         this.lines.push(line);
-    }*/
 
-   drawLineBetweenTwoStars(star1, star2) {
-
-    console.log("=== DRAW LINE ===");
-    console.log("star1 :", star1);
-    console.log("star2 :", star2);
-    console.log("star1 name :", star1?.userData?.name);
-    console.log("star2 name :", star2?.userData?.name);
-
-    if (!star1 || !star2) {
-        console.error("Une des étoiles est introuvable.");
-        return;
+        console.log("LIGNE CRÉÉE :", line.userData);
+        console.log("NOMBRE DE LIGNES :", this.lines.length);
     }
-
-    if (star1 === star2) {
-        console.warn("Impossible de relier une étoile à elle-même.");
-        return;
-    }
-
-    const geometry = new THREE.BufferGeometry().setFromPoints([
-        star1.position,
-        star2.position
-    ]);
-
-    const material = new THREE.LineBasicMaterial({
-        color: 0xffffff
-    });
-
-    const line = new THREE.Line(
-        geometry,
-        material
-    );
-
-    line.userData = {
-        star1: star1.userData.name,
-        star2: star2.userData.name
-    };
-
-    this.scene.add(line);
-    this.lines.push(line);
-
-    console.log("LIGNE CRÉÉE :", line.userData);
-    console.log("NOMBRE DE LIGNES :", this.lines.length);
-}
 
     // enregistre position etoile
     
-    /*saveStarPosition(star) {
-        const data = {
-            name: star.userData.name,
-            position: {
-                x: star.position.x,
-                y: star.position.y,
-                z: star.position.z
-            }
-        };
-
-        // Envoi des nouvelles positions au backend
-        fetch('/constellations/update-star', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => response.json())
-            .then(data => {
-                const updatedStar = this.getStarByName(star.userData.name);
-                if (updatedStar) {
-                    updatedStar.position.set(data.position.x, data.position.y, data.position.z);
-                }
-            })
-            .catch(error => console.error("Erreur lors de la sauvegarde :", error));
-    }*/
-
-
-    saveStarPosition(star) {
+    saveStarPositionOLD(star) {
         if (!this.activeConstellationId) {
             console.warn("Aucune constellation active, position non sauvegardée.");
             return;
@@ -337,6 +307,73 @@ class ThreeJSConstellation {
             .catch(error => {
                 console.error("Erreur lors de la sauvegarde de la position :", error);
             });
+    }
+
+    saveStarPosition(star) {
+    if (!this.activeConstellationId) {
+        console.warn("Aucune constellation active, position non sauvegardée.");
+        return;
+    }
+
+    const data = {
+        constellation_id: this.activeConstellationId,
+        name: star.userData.name,
+        position: {
+            x: star.position.x,
+            y: star.position.y,
+            z: star.position.z
+        }
+    };
+
+    console.log("POSITION ENVOYÉE :", data);
+
+    fetch('/constellations/update-star', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur HTTP ' + response.status);
+            }
+
+            return response.json();
+        })
+        .then(data => {
+            console.log('Position sauvegardée :', data);
+
+            this.scheduleImageSave();
+        })
+        .catch(error => {
+            console.error("Erreur lors de la sauvegarde de la position :", error);
+        });
+}
+
+    // Garde le champ caché #etoile-json synchronisé avec la position affichée.
+    // Indispensable en CRÉATION : tant que la constellation n'a pas d'id,
+    // saveStarPosition() ne peut rien persister côté serveur, donc c'est
+    // ce champ caché (envoyé avec le formulaire) qui doit porter la bonne position.
+    syncEtoileJsonPosition(name, x, y, z) {
+        const input = document.getElementById("etoile-json");
+        if (!input) {
+            return;
+        }
+
+        try {
+            const stars = JSON.parse(input.value || '[]');
+            const star = stars.find(s => s.name === name);
+
+            if (star) {
+                star.x = x;
+                star.y = y;
+                star.z = z;
+                input.value = JSON.stringify(stars);
+            }
+        } catch (error) {
+            console.error("Impossible de mettre à jour etoile-json :", error);
+        }
     }
 
     // evenement pour bouger les etoiles 
@@ -392,18 +429,21 @@ class ThreeJSConstellation {
         }
     }
 
-    /*onPointerUp() {
-        if (this.draggingStar) {
-            this.saveStarPosition(this.draggingStar);
-        }
-        this.draggingStar = null;
-        this.starWasMoved = false;
-    }*/
-
     onPointerUp() {
         const star = this.draggingStar;
 
         if (star && this.starWasMoved) {
+            // 1. Toujours synchroniser le champ caché (utile en création,
+            //    où activeConstellationId n'existe pas encore).
+            this.syncEtoileJsonPosition(
+                star.userData.name,
+                star.position.x,
+                star.position.y,
+                star.position.z
+            );
+
+            // 2. Sauvegarde immédiate côté serveur, seulement si la
+            //    constellation existe déjà (mode édition).
             this.saveStarPosition(star);
         }
 
@@ -411,119 +451,70 @@ class ThreeJSConstellation {
         this.starWasMoved = false;
     }
 
-    /*onPointerMove(event) {
-        if (!this.draggingStar) return;
+    
+    onPointerMove(event) {
+        if (!this.draggingStar) {
+            return;
+        }
 
         const rect = this.container.getBoundingClientRect();
-        this.mouse.x = ((event.clientX - rect.left) / this.container.clientWidth) * 2 - 1;
-        this.mouse.y = -((event.clientY - rect.top) / this.container.clientHeight) * 2 + 1;
+
+        this.mouse.x =
+            ((event.clientX - rect.left) / rect.width) * 2 - 1;
+
+        this.mouse.y =
+            -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
-        const newPosition = new THREE.Vector3(this.mouse.x * 5, this.mouse.y * 5, 0).sub(this.offset);
 
-        this.draggingStar.position.copy(newPosition);
-        
-        this.starWasMoved = true;
-        
-        this.lines.forEach(line => {
-            if (line.userData.star1 === this.draggingStar || line.userData.star2 === this.draggingStar) {
-                line.geometry.setFromPoints([line.userData.star1.position, line.userData.star2.position]);
-            }
-        });
-        const star = this.draggingStar;
-
-        if (this.saveTimeout) clearTimeout(this.saveTimeout);
-        this.saveTimeout = setTimeout(() => {
-            this.saveStarPosition(star);
-        }, 500);
-        // this.saveTimeout = setTimeout(() => this.saveStarPosition(this.draggingStar), 500);
-
-    }*/
-
-onPointerMove(event) {
-    if (!this.draggingStar) {
-        return;
-    }
-
-    const rect = this.container.getBoundingClientRect();
-
-    this.mouse.x =
-        ((event.clientX - rect.left) / rect.width) * 2 - 1;
-
-    this.mouse.y =
-        -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-
-    const plane = new THREE.Plane(
-        new THREE.Vector3(0, 0, 1),
-        0
-    );
-
-    const intersection = new THREE.Vector3();
-
-    this.raycaster.ray.intersectPlane(plane, intersection);
-
-    if (!intersection) {
-        return;
-    }
-
-    const newPosition = intersection.sub(this.offset);
-
-    this.draggingStar.position.copy(newPosition);
-    this.starWasMoved = true;
-
-    // Mise à jour visuelle des lignes
-    this.lines.forEach(line => {
-        const star1 = this.getStarByName(line.userData.star1);
-        const star2 = this.getStarByName(line.userData.star2);
-
-        if (!star1 || !star2) {
-            return;
-        }
-
-        const positions = new Float32Array([
-            star1.position.x,
-            star1.position.y,
-            star1.position.z,
-
-            star2.position.x,
-            star2.position.y,
-            star2.position.z
-        ]);
-
-        line.geometry.setAttribute(
-            'position',
-            new THREE.BufferAttribute(positions, 3)
+        const plane = new THREE.Plane(
+            new THREE.Vector3(0, 0, 1),
+            0
         );
 
-        line.geometry.attributes.position.needsUpdate = true;
-    });
-}
+        const intersection = new THREE.Vector3();
 
-    // enregistrer les lignes 
-    /*saveLines() {
-        if (!this.activeConstellationId) {
-            console.error("Aucune constellation sélectionnée !");
+        this.raycaster.ray.intersectPlane(plane, intersection);
+
+        if (!intersection) {
             return;
         }
 
-        const linesData = this.lines.map(line => ({
-            star1: line.userData?.star1?.userData?.name || null,
-            star2: line.userData?.star2?.userData?.name || null
-        })).filter(line => line.star1 && line.star2);
+        const newPosition = intersection.sub(this.offset);
 
-        fetch('/constellations/update-lines', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                constellation_id: this.activeConstellationId,
-                lines_etoiles: linesData
-            })
-        })
-            .catch(error => console.error("Erreur lors de la sauvegarde des lignes :", error));
-    }*/
+        this.draggingStar.position.copy(newPosition);
+        this.starWasMoved = true;
 
+        // Mise à jour visuelle des lignes
+        this.lines.forEach(line => {
+            const star1 = this.getStarByName(line.userData.star1);
+            const star2 = this.getStarByName(line.userData.star2);
+
+            if (!star1 || !star2) {
+                return;
+            }
+
+            const positions = new Float32Array([
+                star1.position.x,
+                star1.position.y,
+                star1.position.z,
+
+                star2.position.x,
+                star2.position.y,
+                star2.position.z
+            ]);
+
+            line.geometry.setAttribute(
+                'position',
+                new THREE.BufferAttribute(positions, 3)
+            );
+
+            line.geometry.attributes.position.needsUpdate = true;
+        });
+    }
+
+    // enregistrer les lignes 
+    
     saveLines() {
         console.log("=== SAVE LINES ===");
 
@@ -535,8 +526,27 @@ onPointerMove(event) {
             star2: line.userData.star2
         }));
 
+        const linesInput = document.getElementById("lines-json");
+
+        if (linesInput) {
+            linesInput.value = JSON.stringify(linesData);
+        }
+
         console.log("linesData :", linesData);
 
+        console.log(
+            "LIGNE 1 :",
+            linesData[0]?.star1,
+            "→",
+            linesData[0]?.star2
+        );
+
+        console.log(
+            "LIGNE 2 :",
+            linesData[1]?.star1,
+            "→",
+            linesData[1]?.star2
+        );
         if (!this.activeConstellationId) {
             console.warn(
                 "Aucune constellation active, lignes non sauvegardées."
@@ -652,77 +662,49 @@ onPointerMove(event) {
         //console.log("Constellation sélectionnée :", activeConstellationId);
     }
 
-    /*saveImageToServer() {
+    saveImageToServer() {
+        if (!this.activeConstellationId) {
+            console.warn("Aucune constellation active, image non sauvegardée.");
+            return;
+        }
+
         const canvas = this.container.querySelector('canvas');
-        const constellationId = this.container.getAttribute('data-constellation-id');
 
         if (!canvas) {
             console.error("Aucun canvas trouvé dans le conteneur.");
             return;
         }
 
-        if (!this.isRendered) {
-            requestAnimationFrame(() => {
-                this.isRendered = true;
-                const dataURL = canvas.toDataURL('image/png');
+        requestAnimationFrame(() => {
+            const dataURL = canvas.toDataURL('image/png');
 
-                console.log("Données envoyées:", { image: dataURL });
-
-                fetch(`/constellations/save-imageC/${constellationId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: dataURL })
+            fetch(`/constellations/save-imageC/${this.activeConstellationId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    image: dataURL
                 })
-                    .then(response => response.json())
-                    .then(data => console.log('Image enregistrée avec succès:', data))
-                    .catch(error => console.error('Erreur lors de la sauvegarde:', error));
-            });
-        }
-    }*/
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur HTTP ' + response.status);
+                    }
 
-    saveImageToServer() {
-    if (!this.activeConstellationId) {
-        console.warn("Aucune constellation active, image non sauvegardée.");
-        return;
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Image sauvegardée :', data);
+                })
+                .catch(error => {
+                    console.error(
+                        "Erreur lors de la sauvegarde de l'image :",
+                        error
+                    );
+                });
+        });
     }
-
-    const canvas = this.container.querySelector('canvas');
-
-    if (!canvas) {
-        console.error("Aucun canvas trouvé dans le conteneur.");
-        return;
-    }
-
-    requestAnimationFrame(() => {
-        const dataURL = canvas.toDataURL('image/png');
-
-        fetch(`/constellations/save-imageC/${this.activeConstellationId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                image: dataURL
-            })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur HTTP ' + response.status);
-                }
-
-                return response.json();
-            })
-            .then(data => {
-                console.log('Image sauvegardée :', data);
-            })
-            .catch(error => {
-                console.error(
-                    "Erreur lors de la sauvegarde de l'image :",
-                    error
-                );
-            });
-    });
-}
 
     animate() {
         requestAnimationFrame(() => this.animate());
