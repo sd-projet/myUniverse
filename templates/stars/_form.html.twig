@@ -63,7 +63,11 @@
 
     <div class="star-preview">
         <h2>Prévisualisation</h2>
-        <div id="threejs-container" data-star-id="{{ star.id }}"></div>
+        <div
+            id="threejs-container"
+            data-star-id="{{ star.id }}"
+            data-is-new="{{ is_new|default(false) ? 'true' : 'false' }}"
+        ></div>
     </div>
 </div>
 

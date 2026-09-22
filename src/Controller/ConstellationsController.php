@@ -80,7 +80,6 @@ final class ConstellationsController extends AbstractController
                 $entityManager->flush();
                 $entityManager->refresh($constellation);
 
-                // return $this->redirectToRoute('app_user_constellations', [], Response::HTTP_SEE_OTHER);
                 return $this->redirectToRoute(
                     'app_constellations_edit',
                     ['id' => $constellation->getId()],
@@ -113,7 +112,7 @@ final class ConstellationsController extends AbstractController
     public function edit(Request $request, Constellations $constellation, EntityManagerInterface $entityManager, Security $security): Response
     {
         $user = $security->getUser();
-        // dd($constellation->getEtoile());
+       
         // Vérification si l'utilisateur est propriétaire de la constellation
         if ($constellation->getUser() !== $user) {
             throw $this->createAccessDeniedException("Vous n'avez pas l'autorisation de modifier cette constellation.");
@@ -248,19 +247,7 @@ final class ConstellationsController extends AbstractController
         $constellation->setEtoile($stars);
 
         $entityManager->flush();
-        // $entityManager->refresh($constellation);
-        
-        // dd($constellation->getEtoile());
-        
-        /*$entityManager->clear();
-
-        $constellationVerifiee = $constellationsRepository->find(
-            $data['constellation_id']
-        );
-
-        dd($constellationVerifiee->getEtoile());*/
-
-
+       
         return new JsonResponse([
             'message' => 'Position mise à jour avec succès',
             'position' => [
@@ -270,15 +257,6 @@ final class ConstellationsController extends AbstractController
             ],
             'etoiles_apres_flush' => $constellation->getEtoile()
         ]);
-
-        /*return new JsonResponse([
-            'message' => 'Position mise à jour avec succès',
-            'position' => [
-                'x' => (float) $data['position']['x'],
-                'y' => (float) $data['position']['y'],
-                'z' => (float) $data['position']['z'],
-            ]
-        ]);*/
     }
 
     #[Route('/update-lines', name: 'app_update_lines', methods: ['POST'])]
@@ -324,9 +302,6 @@ final class ConstellationsController extends AbstractController
             'constellation_id' => $data['constellation_id'],
             'lines_etoiles' => $data['lines_etoiles'],
         ]);
-
-        // $constellation->setLines($data['lines_etoiles']);
-        // $entityManager->flush();
 
         $constellation->setLines($data['lines_etoiles']);
 

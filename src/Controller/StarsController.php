@@ -34,13 +34,26 @@ final class StarsController extends AbstractController
         $form = $this->createForm(StarsType::class, $star);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        /*if ($form->isSubmitted() && $form->isValid()) {
             $star->setUser($this->getUser());  // Associer l'utilisateur connecté
 
             $entityManager->persist($star);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_user_stars', [], Response::HTTP_SEE_OTHER);
+        }*/
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $star->setUser($this->getUser());
+
+            $entityManager->persist($star);
+            $entityManager->flush();
+
+            return $this->redirectToRoute(
+                'app_stars_edit',
+                ['id' => $star->getId()],
+                Response::HTTP_SEE_OTHER
+            );
         }
 
         return $this->render('stars/new.html.twig', [
@@ -83,7 +96,7 @@ final class StarsController extends AbstractController
     }
 
     #[Route('/save-image/{id}', name: 'save_image', methods: ['POST'])]
-    public function saveImage(int $id, Request $request, EntityManagerInterface $entityManager, StarsRepository $starsRepository): JsonResponse
+    public function saveImageOLD(int $id, Request $request, EntityManagerInterface $entityManager, StarsRepository $starsRepository): JsonResponse
     {
         // Récupérer les données de la requête
         $data = json_decode($request->getContent(), true);
@@ -104,12 +117,25 @@ final class StarsController extends AbstractController
         }
 
         // Sauvegarde de l'image 
-        $fileName = 'star_' . $id . '.png';
+        /*$fileName = 'star_' . $id . '.png';
         $filePath = 'uploads/images/' . $fileName;
         
         if (file_put_contents($filePath, $decodedImage) === false) {
             return new JsonResponse(['error' => 'Échec de l\'enregistrement de l\'image'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }*/
+
+        $directory = $this->getParameter('kernel.project_dir') . '/public/uploads/images';
+
+        if (!is_dir($directory)) {
+            mkdir($directory, 0775, true);
         }
+
+        $fileName = 'star_' . $id . '.png';
+
+        $absolutePath = $directory . '/' . $fileName;
+        $filePath = '/uploads/images/' . $fileName;
+
+        file_put_contents($absolutePath, $imageData);
 
         // Mettre à jour l'entité avec le chemin de l'image
         $star = $starsRepository->find($id);
@@ -117,6 +143,89 @@ final class StarsController extends AbstractController
         $entityManager->flush();
 
         // Retourner une réponse JSON avec le chemin de l'image
+        return new JsonResponse([
+            'message' => 'Image enregistrée avec succès',
+            'path' => $filePath
+        ]);
+    }
+
+    #[Route('/save-image/{id}', name: 'save_image', methods: ['POST'])]
+    public function saveImage(
+        int $id,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        StarsRepository $starsRepository
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['image'])) {
+            return new JsonResponse(
+                ['error' => 'Image manquante'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $imageData = $data['image'];
+
+        // Vérifier et retirer le préfixe de l'image Base64
+        if (!str_starts_with($imageData, 'data:image/png;base64,')) {
+            return new JsonResponse(
+                ['error' => 'Format d\'image invalide'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $base64 = str_replace(
+            'data:image/png;base64,',
+            '',
+            $imageData
+        );
+
+        $decodedImage = base64_decode($base64, true);
+
+        if ($decodedImage === false) {
+            return new JsonResponse(
+                ['error' => 'Erreur lors du décodage de l\'image'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        // Récupérer l'étoile
+        $star = $starsRepository->find($id);
+
+        if (!$star) {
+            return new JsonResponse(
+                ['error' => 'Étoile introuvable'],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        // Dossier de sauvegarde
+        $directory = $this->getParameter('kernel.project_dir')
+            . '/public/uploads/images';
+
+        if (!is_dir($directory)) {
+            mkdir($directory, 0775, true);
+        }
+
+        $fileName = 'star_' . $id . '.png';
+
+        $absolutePath = $directory . '/' . $fileName;
+        $filePath = '/uploads/images/' . $fileName;
+
+        // Sauvegarder réellement le PNG décodé
+        if (file_put_contents($absolutePath, $decodedImage) === false) {
+            return new JsonResponse(
+                ['error' => 'Échec de l\'enregistrement de l\'image'],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        // Enregistrer le chemin dans la BDD
+        $star->setImageUrl($filePath);
+
+        $entityManager->flush();
+
         return new JsonResponse([
             'message' => 'Image enregistrée avec succès',
             'path' => $filePath

@@ -41,9 +41,6 @@ class StarScene {
 
         // Gérer la mise à jour des propriétés de l'étoile via des inputs utilisateur
         this.handleInputUpdates();
-
-        // Gérer l'enregistrement d'image
-        this.isRendered = false;
     }
 
     // Crée la forme d'une étoile à cinq branches (forme 2D)
@@ -111,61 +108,131 @@ class StarScene {
     handleInputUpdates() {
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', () => {
-                const value = parseFloat(input.value) || 0; // Récupère la valeur de l'input
-                if (input.id.includes('color')) {
-                    this.starMesh.material.color.set(input.value); // Change la couleur de l'étoile
-                } else if (input.id.includes('size')) {
+                const value = parseFloat(input.value) || 0;
+
+                if (
+                    input.id.includes('color') ||
+                    input.id === 'starColor'
+                ) {
+                    this.starMesh.material.color.set(input.value);
+
+                } else if (
+                    input.id.includes('size') ||
+                    input.id === 'starSize'
+                ) {
                     const newSize = value || 1;
-                    this.starMesh.scale.set(newSize, newSize, newSize); // Change la taille de l'étoile
-                } else if (input.id.includes('position-x')) {
-                    this.starMesh.position.x = value; // Change la position X de l'étoile
-                } else if (input.id.includes('position-y')) {
-                    this.starMesh.position.y = value; // Change la position Y de l'étoile
-                } else if (input.id.includes('position-z')) {
-                    this.starMesh.position.z = value; // Change la position Z de l'étoile
+
+                    this.starMesh.scale.set(
+                        newSize,
+                        newSize,
+                        newSize
+                    );
+
+                } else if (
+                    input.id.includes('x_position')
+                ) {
+                    this.starMesh.position.x = value;
+
+                } else if (
+                    input.id.includes('y_position')
+                ) {
+                    this.starMesh.position.y = value;
+
+                } else if (
+                    input.id.includes('z_position')
+                ) {
+                    this.starMesh.position.z = value;
                 }
             });
         });
 
-        // Lance la mise à jour initiale des inputs
-        document.querySelectorAll('input').forEach(input => input.dispatchEvent(new Event('input')));
+        // Appliquer immédiatement les valeurs déjà présentes
+        document.querySelectorAll('input').forEach(input => {
+            input.dispatchEvent(new Event('input'));
+        });
     }
 
     // Sauvegarde l'image de la scène sur le serveur
     saveImageToServer() {
         if (!this.renderer || !this.container) {
-            return;
+            console.error("Renderer ou conteneur Three.js introuvable.");
+            return Promise.reject(
+                new Error("Renderer ou conteneur Three.js introuvable.")
+            );
         }
 
         const canvas = this.renderer.domElement;
         const starId = this.container.getAttribute('data-star-id');
 
+        if (!starId) {
+            console.error(
+                "Impossible de sauvegarder l'image : ID de l'étoile manquant."
+            );
+
+            return Promise.reject(
+                new Error("ID de l'étoile manquant.")
+            );
+        }
+
         if (!canvas) {
-            console.error("Aucun canvas trouvé dans #threejs-container");
-            return;
+            console.error("Canvas Three.js introuvable.");
+
+            return Promise.reject(
+                new Error("Canvas Three.js introuvable.")
+            );
         }
 
-        if (!this.isRendered) {
+        return new Promise((resolve, reject) => {
+            // On attend simplement le prochain rendu Three.js.
             requestAnimationFrame(() => {
-                this.isRendered = true;
+                try {
+                    const dataURL = canvas.toDataURL('image/png');
 
-                const dataURL = canvas.toDataURL('image/png');
+                    fetch(`/stars/save-image/${starId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            image: dataURL
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(
+                                `Erreur HTTP ${response.status}`
+                            );
+                        }
 
-                fetch(`/stars/save-image/${starId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: dataURL })
-                })
-                    .then(response => response.json())
-                    .then(data => console.log('Image enregistrée avec succès:', data))
-                    .catch(error => console.error('Erreur lors de la sauvegarde:', error));
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(
+                            'Image de l’étoile enregistrée avec succès :',
+                            data
+                        );
+
+                        resolve(data);
+                    })
+                    .catch(error => {
+                        console.error(
+                            'Erreur lors de la sauvegarde de l’image :',
+                            error
+                        );
+
+                        reject(error);
+                    });
+
+                } catch (error) {
+                    console.error(
+                        'Impossible de générer l’image Three.js :',
+                        error
+                    );
+
+                    reject(error);
+                }
             });
-        }
-    }
-
-    // Lance un timer pour capturer et sauvegarder l'image après 10 secondes
-    startImageCaptureTimer() {
-        setTimeout(() => this.saveImageToServer(), 10000);
+        });
     }
 
     // Met à jour les étoiles dans la scène en supprimant les anciennes et ajoutant les nouvelles
@@ -190,22 +257,84 @@ class StarScene {
         star.material.color.set(color); // Définit la couleur de l'étoile
         this.scene.add(star); // Ajoute l'étoile à la scène
     }
+
+    setupFormSubmission() {
+        const form = this.container.closest('form');
+
+        if (!form) {
+            console.warn(
+                "Formulaire de l'étoile introuvable."
+            );
+            return;
+        }
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const submitButton = form.querySelector(
+                'button[type="submit"]'
+            );
+
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+
+            try {
+                await this.saveImageToServer();
+
+                // Soumission native du formulaire.
+                // Cela évite de redéclencher notre listener submit.
+                form.submit();
+
+            } catch (error) {
+                console.error(
+                    "L'image n'a pas pu être sauvegardée :",
+                    error
+                );
+
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
+            }
+        });
+    }
+
 }
 
 // Création de l'instance de la scène après que le DOM soit entièrement chargé
+
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('threejs-container');
 
-    // Cette page n'utilise pas la scène Three.js des étoiles.
     if (!container) {
         return;
     }
 
     const starScene = new StarScene('threejs-container');
 
-    starScene.startImageCaptureTimer();
+    const isNew = container.dataset.isNew === 'true';
 
-    // Écoute un événement personnalisé pour mettre à jour les étoiles dans la scène
+    if (isNew) {
+        // Création :
+        // l'ID existe maintenant car le contrôleur a fait flush().
+        starScene.saveImageToServer()
+            .then(() => {
+                console.log(
+                    "Image de la nouvelle étoile sauvegardée."
+                );
+            })
+            .catch(error => {
+                console.error(
+                    "Erreur lors de la sauvegarde de l'image :",
+                    error
+                );
+            });
+    } else {
+        // Modification :
+        // l'image sera sauvegardée au clic sur "Mettre à jour".
+        starScene.setupFormSubmission();
+    }
+
     document.addEventListener("starsUpdated", (event) => {
         const stars = event.detail;
         starScene.updateStars(stars);
