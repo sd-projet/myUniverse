@@ -82,7 +82,15 @@ class StarScene {
         const starShape = this.createStarShape(); // Crée la forme 2D de l'étoile
         const extrudeSettings = { depth: 1, bevelEnabled: true, bevelThickness: 0.5, bevelSize: 0.5, bevelSegments: 2 };
         const starGeometry = new THREE.ExtrudeGeometry(starShape, extrudeSettings); // Extrude la forme pour créer un mesh 3D
-        const starMaterial = new THREE.MeshStandardMaterial({ color: 0xc9bffd, metalness: 0.5, roughness: 0.3 }); // Définir les propriétés matérielles de l'étoile
+        // const starMaterial = new THREE.MeshStandardMaterial({ color: 0xc9bffd, metalness: 0.5, roughness: 0.3 }); // Définir les propriétés matérielles de l'étoile
+
+        const starMaterial = new THREE.MeshStandardMaterial({
+            color: 0xc9bffd,
+            metalness: 0.5,
+            roughness: 0.3,
+            emissive: 0xc9bffd,
+            emissiveIntensity: 0
+        });
         return new THREE.Mesh(starGeometry, starMaterial); // Retourne le mesh 3D de l'étoile
     }
 
@@ -121,17 +129,32 @@ class StarScene {
 
     // Gère les mises à jour des propriétés de l'étoile via des inputs utilisateur (taille, position, couleur)
     handleInputUpdates() {
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', () => {
+        document.querySelectorAll('input, select').forEach(input => {
+
+            const updateStar = () => {
                 const value = parseFloat(input.value) || 0;
                 const fieldName = (input.name || input.id || '').toLowerCase();
 
                 if (fieldName.includes('color')) {
                     this.starMesh.material.color.set(input.value);
+                    this.starMesh.material.emissive.set(input.value);
 
                 } else if (fieldName.includes('size')) {
                     const newSize = value || 1;
-                    this.starMesh.scale.set(newSize, newSize, newSize);
+
+                    this.starMesh.scale.set(
+                        newSize,
+                        newSize,
+                        newSize
+                    );
+
+                } else if (fieldName.includes('brightness')) {
+                    const brightness = Math.max(
+                        0,
+                        Math.min(value, 2)
+                    );
+
+                    this.starMesh.material.emissiveIntensity = brightness;
 
                 } else if (fieldName.includes('x_position')) {
                     this.starMesh.position.x = value;
@@ -142,12 +165,19 @@ class StarScene {
                 } else if (fieldName.includes('z_position')) {
                     this.starMesh.position.z = value;
                 }
-            });
+            };
+
+            // Pour les inputs : modification en temps réel
+            input.addEventListener('input', updateStar);
+
+            // Pour les select : changement de valeur
+            input.addEventListener('change', updateStar);
         });
 
-        // Appliquer immédiatement les valeurs déjà présentes dans le formulaire
-        document.querySelectorAll('input').forEach(input => {
-            input.dispatchEvent(new Event('input'));
+        // Appliquer immédiatement les valeurs déjà présentes
+        // dans le formulaire au chargement de la page.
+        document.querySelectorAll('input, select').forEach(input => {
+            input.dispatchEvent(new Event('change'));
         });
     }
 
@@ -235,26 +265,65 @@ class StarScene {
     }
 
     // Met à jour les étoiles dans la scène en supprimant les anciennes et ajoutant les nouvelles
-    updateStars(stars) {
+    /*updateStars(stars) {
         this.removeAllStars(); // Supprime toutes les étoiles existantes
         stars.forEach(star => {
             this.addStarToScene(star.name, star.x, star.y, star.z, star.color); // Ajoute chaque étoile à la scène
+        });
+    }*/
+
+    updateStars(stars) {
+        this.removeAllStars();
+
+        stars.forEach(star => {
+            this.addStarToScene(
+                star.name,
+                star.x_position,
+                star.y_position,
+                star.z_position,
+                star.color,
+                star.size,
+                star.brightness
+            );
         });
     }
 
     // Supprime toutes les étoiles de la scène
     removeAllStars() {
-        while (this.scene.children.length > 0) {
-            this.scene.remove(this.scene.children[0]); // Retire chaque enfant de la scène (étoile)
-        }
+        this.scene.children
+            .filter(child => child.isMesh && child !== this.starMesh)
+            .forEach(child => {
+                this.scene.remove(child);
+            });
     }
 
     // Ajoute une nouvelle étoile à la scène avec les propriétés données
-    addStarToScene(name, x, y, z, color) {
+    /*addStarToScene(name, x, y, z, color) {
         const star = this.createStarMesh(); // Crée une nouvelle étoile
         star.position.set(x, y, z); // Positionne l'étoile dans la scène
         star.material.color.set(color); // Définit la couleur de l'étoile
         this.scene.add(star); // Ajoute l'étoile à la scène
+    }*/
+
+    addStarToScene(name, x, y, z, color, size = 1, brightness = 1) {
+        const star = this.createStarMesh();
+
+        star.position.set(x, y, z);
+
+        star.material.color.set(color);
+        star.material.emissive.set(color);
+
+        const starSize = parseFloat(size) || 1;
+        star.scale.set(starSize, starSize, starSize);
+
+        const starBrightness = Math.max(
+            0,
+            Math.min(parseFloat(brightness) || 0, 2)
+        );
+
+        star.material.emissiveIntensity = starBrightness;
+
+        this.scene.add(star);
     }
 
     setupFormSubmission() {

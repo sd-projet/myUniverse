@@ -22,12 +22,12 @@
 
             <div class="form-group2">
                 {{ form_label(form.x_position, 'Position X') }}
-                {{ form_widget(form.x_position, {'attr': {'class': 'form-control', 'type': 'number', 'placeholder': 'Choisissez la position de votre étoile en X'}}) }}
+                {{ form_widget(form.x_position, {'attr': {'class': 'form-control', 'placeholder': 'Ex : 5'}}) }}
             </div>
 
             <div class="form-group2">
                 {{ form_label(form.y_position, 'Position Y') }}
-                {{ form_widget(form.y_position, {'attr': {'class': 'form-control', 'type': 'number', 'placeholder': 'Choisissez la position de votre étoile en Y'}}) }}
+                {{ form_widget(form.y_position, {'attr': {'class': 'form-control', 'placeholder': 'Ex : 2'}}) }}
             </div>
         </div>
 
@@ -50,7 +50,7 @@
 
             <div class="form-group2">
                 {{ form_label(form.z_position, 'Position Z') }}
-                {{ form_widget(form.z_position, {'attr': {'class': 'form-control', 'type': 'number'}}) }}
+                {{ form_widget(form.z_position, {'attr': {'class': 'form-control', 'placeholder': 'Ex : 4'}}) }}
             </div>
         </div>
 

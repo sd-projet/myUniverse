@@ -36,7 +36,7 @@ class Stars
     private ?float $z_position = null;
 
     #[ORM\Column]
-    private ?float $brightness = null;
+    private ?float $brightness = 1.0;
 
     #[ORM\Column(length: 20)]
     private ?string $color = null;
@@ -68,6 +68,7 @@ class Stars
         $this->created_at = new \DateTimeImmutable();
         $this->updated_at = new \DateTimeImmutable();
         $this->constellations = new ArrayCollection();
+        $this->brightness = 1.0;
 
     }
 
@@ -254,6 +255,7 @@ class Stars
             'event_date' => $this->event_date->format('Y-m-d'),
             'x_position' => $this->x_position,
             'y_position' => $this->y_position,
+            'z_position' => $this->z_position,
             'modelPath' => $this->modelPath,
         ];
     }

@@ -19,11 +19,11 @@ class Partage
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Stars::class)]
-    #[ORM\JoinColumn(nullable: true)] 
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Stars $star = null;
 
     #[ORM\ManyToOne(targetEntity: Constellations::class)]
-    #[ORM\JoinColumn(nullable: true)] 
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Constellations $constellation = null;
 
     #[ORM\Column(length: 255, nullable: true)]
