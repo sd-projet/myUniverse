@@ -7,7 +7,11 @@
    {{ form_start(form) }}
         <div class="dropzone-container">
             <label for="profilePicture" class="dropzone">
-                <img id="profilePreview" src="{{ asset('uploads/profile_pictures/' ~ (app.user.profilePicture ?: 'default.jpg')) }}" alt="Photo de profil">
+                <img
+                    id="profilePreview"
+                    src="{{ app.user.profilePicture ?: asset('uploads/profile_pictures/default.jpg') }}"
+                    alt="Photo de profil"
+                >
                 <span class="dropzone-text">Glissez-déposez une image ici ou cliquez</span>
             </label>
             {{ form_widget(form.profilePicture, { 'attr': { 'id': 'profilePicture', 'class': 'hidden-input' } }) }}

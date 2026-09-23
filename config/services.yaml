@@ -7,6 +7,10 @@ parameters:
     models_directory: '%kernel.project_dir%/public/uploads/models'
     profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
 
+    cloudinary.cloud_name: '%env(CLOUDINARY_CLOUD_NAME)%'
+    cloudinary.api_key: '%env(CLOUDINARY_API_KEY)%'
+    cloudinary.api_secret: '%env(CLOUDINARY_API_SECRET)%'
+
 
 services:
     # default configuration for services in *this* file
@@ -22,6 +26,12 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-
+    
+    App\Service\CloudinaryService:
+        arguments:
+            $cloudName: '%cloudinary.cloud_name%'
+            $apiKey: '%cloudinary.api_key%'
+            $apiSecret: '%cloudinary.api_secret%'
+            
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

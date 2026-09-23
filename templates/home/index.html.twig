@@ -19,9 +19,10 @@
             <article class="share-card">
 
                 <div class="share-card-header">
-                    <img src="{{ asset('uploads/profile_pictures/' ~ partage.user.profilePicture) }}"
-                         alt="Photo de profil de {{ partage.user.name }}"
-                         class="profile-pic">
+                    
+                    <img src="{{ partage.user.profilePicture ?: asset('uploads/profile_pictures/default.jpg') }}"
+                        alt="Photo de profil de {{ partage.user.name }}"
+                        class="profile-pic">
 
                     <div class="share-user">
                         <span class="username">

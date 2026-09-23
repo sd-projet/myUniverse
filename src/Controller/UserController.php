@@ -12,12 +12,18 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use App\Form\UserType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use App\Service\CloudinaryService;
 
 class UserController extends AbstractController
 {
     #[Route('/parametres', name: 'app_user_settings')]
     #[IsGranted('ROLE_USER')]
-    public function settings(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function settings(
+        Request $request, 
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher,
+        CloudinaryService $cloudinaryService
+         ): Response
     {
         $user = $this->getUser(); // Récupère l'utilisateur connecté
 
@@ -40,31 +46,24 @@ class UserController extends AbstractController
                 $user->setPassword($hashedPassword);
             }
 
-            // Gestion de l'upload de la photo de profil
-            /** @var UploadedFile $profilePictureFile */
+            /** @var UploadedFile|null $profilePictureFile */
             $profilePictureFile = $form->get('profilePicture')->getData();
 
             if ($profilePictureFile) {
-                $newFilename = uniqid() . '.' . $profilePictureFile->guessExtension();
-
                 try {
-                    $profilePictureFile->move(
-                        $this->getParameter('profile_pictures_directory'),
-                        $newFilename
+                    $result = $cloudinaryService->upload(
+                        $profilePictureFile->getPathname()
                     );
 
-                    // Supprime l'ancienne image si elle existe
-                    if ($user->getProfilePicture()) {
-                        $oldFile = $this->getParameter('profile_pictures_directory') . '/' . $user->getProfilePicture();
-                        if (file_exists($oldFile)) {
-                            unlink($oldFile);
-                        }
-                    }
+                    $user->setProfilePicture($result['secure_url']);
 
-                    $user->setProfilePicture($newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'upload de l\'image.');
-                    return $this->redirectToRoute('app_user_settings'); // Évite de continuer l'exécution
+                } catch (\Throwable $e) {
+                    $this->addFlash(
+                        'error',
+                        'Erreur Cloudinary : ' . $e->getMessage()
+                    );
+
+                    return $this->redirectToRoute('app_user_settings');
                 }
             }
 
