@@ -1,4 +1,5 @@
 // classe pour afficher les etoiles pour créer des constellations
+// Dépend de MyUniverseStarFX (défini dans starVisual.js, chargé juste avant dans base.html.twig).
 
 class ThreeJSConstellation {
     //if (containerId){
@@ -14,16 +15,22 @@ class ThreeJSConstellation {
                 this.camera = new THREE.PerspectiveCamera(75, this.container.clientWidth / this.container.clientHeight, 0.1, 1000);
                 this.camera.position.z = 10;
 
-                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                // Rendu opaque sur fond d'espace profond : l'image enregistrée de la constellation
+                // contient donc le ciel étoilé, et les halos additifs se mélangent correctement.
+                this.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+                this.renderer.setClearColor(0x03050d, 1);
                 this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
                 this.renderer.setPixelRatio(
                     Math.min(window.devicePixelRatio, 2)
                 );
                 this.container.appendChild(this.renderer.domElement);
 
-                this.light = new THREE.PointLight(0xffffff, 1.2, 100);
-                this.light.position.set(10, 10, 10);
-                this.scene.add(this.light);
+                // Horloge partagée par les shaders (plasma, scintillement) + ciel profond
+                this.time = { value: 0 };
+                this.lastFrame = performance.now();
+                this.pixelRatio = this.renderer.getPixelRatio();
+                this.backdrop = MyUniverseStarFX.createBackdrop(this.time, this.pixelRatio);
+                this.scene.add(this.backdrop);
 
                 this.stars = [];
                 this.lines = [];
@@ -147,7 +154,9 @@ class ThreeJSConstellation {
                 star.x,
                 star.y,
                 star.color,
-                star.z ?? 0
+                star.z ?? 0,
+                star.size,
+                star.brightness
             );
         });
 
@@ -176,39 +185,60 @@ class ThreeJSConstellation {
         return this.stars.find(star => star.userData.name === name);
     }
 
-    createStarShape() {
-        const shape = new THREE.Shape();
-        const outerRadius = 1, innerRadius = 0.5, spikes = 5;
-        for (let i = 0; i < spikes * 2; i++) {
-            const radius = i % 2 === 0 ? outerRadius : innerRadius;
-            const angle = (i * Math.PI) / spikes;
-            const x = radius * Math.cos(angle);
-            const y = radius * Math.sin(angle);
-            i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y);
+    // Taille et brillance de chaque étoile, lues dans la liste de sélection (#etoile-select).
+    // Ainsi elles sont toujours à jour, même pour une constellation enregistrée avant cette fonctionnalité.
+    getAppearance(name) {
+        if (!this.appearance) {
+            this.appearance = {};
+
+            const select = document.getElementById('etoile-select');
+
+            if (select) {
+                Array.from(select.options).forEach(option => {
+                    try {
+                        const data = JSON.parse(option.value);
+
+                        if (data && data.name) {
+                            this.appearance[data.name] = {
+                                size: data.size,
+                                brightness: data.brightness
+                            };
+                        }
+                    } catch (error) {
+                        // option sans JSON valide : ignorée
+                    }
+                });
+            }
         }
-        shape.closePath();
-        return shape;
+
+        return this.appearance[name] || {};
     }
 
     // ajouter a la scene
-    addStarToScene(name, x, y, color = 0xffff00, z = 0) {
-        const shape = this.createStarShape();
+    addStarToScene(name, x, y, color = 0xffff00, z = 0, size, brightness) {
+        // la couleur peut arriver sous forme de nombre (0xffff00) ou de texte ("#ffcc00")
+        const hex = typeof color === 'number'
+            ? '#' + color.toString(16).padStart(6, '0')
+            : color;
 
-        const geometry = new THREE.ExtrudeGeometry(shape, {
-            depth: 1,
-            bevelEnabled: true,
-            bevelThickness: 0.5,
-            bevelSize: 0.5,
-            bevelSegments: 2
+        // Taille (0.5 à 3, adoucie pour garder une constellation lisible) et brillance (0 à 2)
+        const look = this.getAppearance(name);
+        const rawSize = parseFloat(look.size ?? size);
+        const rawBrightness = parseFloat(look.brightness ?? brightness);
+        const finalSize = Math.pow(Math.min(Math.max(isNaN(rawSize) ? 1 : rawSize, 0.5), 3), 0.6);
+        const finalBrightness = isNaN(rawBrightness) ? 1 : rawBrightness;
+
+        // Version allégée de l'astre de la prévisualisation : plusieurs étoiles à l'écran
+        const starMesh = MyUniverseStarFX.createStar(this.time, this.pixelRatio, {
+            color: hex,
+            size: finalSize,
+            brightness: finalBrightness,
+            baseRadius: 0.55,
+            haloHalf: 6,
+            glow: 0.85,
+            dustCount: 50,
+            segments: 48
         });
-
-        const material = new THREE.MeshStandardMaterial({
-            color,
-            metalness: 0.6,
-            roughness: 0.4
-        });
-
-        const starMesh = new THREE.Mesh(geometry, material);
 
         starMesh.position.set(
             Number(x) || 0,
@@ -247,7 +277,9 @@ class ThreeJSConstellation {
         ]);
 
         const material = new THREE.LineBasicMaterial({
-            color: 0xffffff
+            color: 0xaebcff,
+            transparent: true,
+            opacity: 0.8
         });
 
         const line = new THREE.Line(
@@ -383,15 +415,15 @@ class ThreeJSConstellation {
         this.mouse.y = -((event.clientY - rect.top) / this.container.clientHeight) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
-        const intersects = this.raycaster.intersectObjects(this.stars.concat(this.lines));
+        // On teste les sphères de clic des étoiles (pas leurs halos) et les lignes
+        const picks = this.stars.map(star => star.userData.pick);
+        const intersects = this.raycaster.intersectObjects(picks.concat(this.lines), false);
 
         if (intersects.length > 0) {
-            const selectedObject = intersects[0].object;
+            const hit = intersects[0].object;
+            const selectedObject = this.stars.find(star => star.userData.pick === hit);
 
-            if (
-                selectedObject instanceof THREE.Mesh &&
-                this.stars.includes(selectedObject)
-            ) {
+            if (selectedObject) {
 
                 if (this.selectedStars.length === 1) {
 
@@ -401,6 +433,7 @@ class ThreeJSConstellation {
                     // Empêcher une ligne d'une étoile vers elle-même
                     if (firstStar === secondStar) {
                         console.warn("Impossible de relier une étoile à elle-même.");
+                        firstStar.userData.setHighlight(false);
                         this.selectedStars = [];
                         return;
                     }
@@ -411,12 +444,14 @@ class ThreeJSConstellation {
                         secondStar
                     );
 
+                    firstStar.userData.setHighlight(false);
                     this.selectedStars = [];
 
                     this.saveLines();
 
                 } else {
                     this.selectedStars.push(selectedObject);
+                    selectedObject.userData.setHighlight(true);   // l'étoile choisie s'illumine
                 }
 
                 this.draggingStar = selectedObject;
@@ -481,6 +516,8 @@ class ThreeJSConstellation {
         }
 
         const newPosition = intersection.sub(this.offset);
+        // On déplace l'étoile dans son plan : sa profondeur (z) ne doit pas dériver pendant le glisser
+        newPosition.z = this.draggingStar.position.z;
 
         this.draggingStar.position.copy(newPosition);
         this.starWasMoved = true;
@@ -708,6 +745,18 @@ class ThreeJSConstellation {
 
     animate() {
         requestAnimationFrame(() => this.animate());
+
+        const now = performance.now();
+        const dt = Math.min((now - this.lastFrame) / 1000, 0.1);
+        this.lastFrame = now;
+
+        this.time.value += dt;
+        this.backdrop.userData.tick(dt);
+        this.stars.forEach(star => {
+            star.userData.tick(dt);
+            star.userData.spin.rotation.y += dt * 0.15;   // lente rotation de la surface
+        });
+
         this.renderer.render(this.scene, this.camera);
     }
 

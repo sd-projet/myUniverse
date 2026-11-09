@@ -22,9 +22,19 @@
 		<link rel="stylesheet" href="{{ asset('styles/threejs.css') }}">
 		<link rel="stylesheet" href="{{ asset('styles/photoProfil.css') }}">
 		<link rel="stylesheet" href="{{ asset('styles/partage.css') }}">
+
+		{# Thème "Deep Space" : doit rester en dernier pour surcharger les styles précédents #}
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="{{ asset('styles/theme.css') }}">
 	</head>
 
 	<body>
+		{# Fond étoilé animé (voir assets/js/cosmos.js) #}
+		<canvas id="cosmos-bg" aria-hidden="true"></canvas>
+		<script src="{{ asset('js/cosmos.js') }}" defer></script>
+
 		{% block javascripts %}
 			<script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
 			<!--<script src="{#{{ asset('js/three.min.js') }}#}"></script>-->
